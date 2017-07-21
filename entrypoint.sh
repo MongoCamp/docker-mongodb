@@ -1,0 +1,68 @@
+#!/bin/bash
+set -e
+
+create_data_dir() {
+  echo "Create Mongo Data Dir <${MONGO_DATA_DIR}>"
+  mkdir -p ${MONGO_DATA_DIR}
+  chmod -R 0755 ${MONGO_DATA_DIR}
+}
+
+create_data_dir
+
+# allow arguments to be passed to mongod
+if [[ ${1:0:1} = '-' ]]; then
+  EXTRA_ARGS="$@"
+  set --
+elif [[ ${1} == mongod || ${1} == $(which mongod) ]]; then
+  EXTRA_ARGS="${@:2}"
+  set --
+fi
+
+
+if [[ ${MONGO_WIREDTIGER_CACHE_SIZE_GB} != 'NONE' ]]; then
+	echo "Added wiredTigerMaxMemory to ${MONGO_WIREDTIGER_CACHE_SIZE_GB}"
+	MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --wiredTigerCacheSizeGB ${MONGO_WIREDTIGER_CACHE_SIZE_GB}"
+fi
+
+if [[ ${MONGO_USE_SYSLOG} == 'true' || ${MONGO_USE_SYSLOG} == 'TRUE' ]]; then
+	echo "use syslog"
+	MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --syslog"
+fi
+
+echo "Set StorageEngine to <${MONGO_STORAGEENGINE}>"
+MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --storageEngine ${MONGO_STORAGEENGINE}"
+
+if [[ ${MONGO_MAX_CONNECTIONS} != 'NONE' ]]; then
+  echo "Set Max Connections to <${MONGO_MAX_CONNECTIONS}>"
+  MONGO_MAX_CONNECTIONS="${MONGO_EXTRA_ARGS} --maxConns ${MONGO_MAX_CONNECTIONS}"
+fi
+  
+# default behaviour is to launch mongod
+if [[ -z ${1} ]]; then
+
+  echo "Upgrade MongoDb stored files if needed"
+  mongod --port 27017 --upgrade --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 
+  
+  if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
+    echo "Starting mongod to insert the Root User ..."
+	mongod --fork --port 27017 --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
+		
+	echo "Admin User to Database"
+	mongo admin --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
+
+ 	echo "Stop mongod for insert USER ..."
+ 	pkill -f mongo
+ 	pkill -f mongod
+  fi
+
+  if [[ ${MONGO_ROOT_PWD} != 'NONE' ]]; then
+    MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --auth"
+  fi
+
+
+  sleep 15 
+  echo "Starting mongod..."  
+  mongod --port 27017 --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 
+else
+  exec "$@"
+fi
