@@ -24,11 +24,6 @@ if [[ ${MONGO_WIREDTIGER_CACHE_SIZE_GB} != 'NONE' ]]; then
 	MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --wiredTigerCacheSizeGB ${MONGO_WIREDTIGER_CACHE_SIZE_GB}"
 fi
 
-if [[ ${MONGO_USE_SYSLOG} == 'true' || ${MONGO_USE_SYSLOG} == 'TRUE' ]]; then
-	echo "use syslog"
-	MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --syslog"
-fi
-
 echo "Set StorageEngine to <${MONGO_STORAGEENGINE}>"
 MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --storageEngine ${MONGO_STORAGEENGINE}"
 
@@ -45,7 +40,7 @@ if [[ -z ${1} ]]; then
   
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
     echo "Starting mongod to insert the Root User ..."
-	mongod --fork --port 27017 --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
+	mongod --fork --syslog --port 27017 --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
 		
 	echo "Admin User to Database"
 	mongo admin --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
@@ -59,6 +54,11 @@ if [[ -z ${1} ]]; then
     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --auth"
   fi
 
+
+  if [[ ${MONGO_USE_SYSLOG} == 'true' || ${MONGO_USE_SYSLOG} == 'TRUE' ]]; then
+  	echo "use syslog"
+  	MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --syslog"
+  fi
 
   sleep 15 
   echo "Starting mongod..."  
