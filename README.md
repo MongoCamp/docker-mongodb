@@ -10,23 +10,17 @@
   - [Environment Variables](#environment-variables)
 
 # Introduction
-Git-Repository to build [Docker](https://www.docker.com/) containerimage
-for [MongoDB](https://www.mongodb.org/).
+Git-Repository to build [Docker](https://www.docker.com/) containerimage for [MongoDB](https://www.mongodb.org/).
 
 ## Contributing
 If you find this image helpfull, so you can here's how you can help:
 - Send a pull request with your features and bug fixes
-- Help users resolve their [issues](../../issues?q=is%3Aopen+is%3Aissue).
+- Help users resolve their [issues](https://github.com/QuadStingray/docker-mongodb/issues).
 
 ## Issues
-Before reporting your issue please try updating Docker to the latest
-version and check if it resolves the issue. Refer to the Docker
-[installation guide](https://docs.docker.com/installation) for
-instructions.
+Before reporting your issue please try updating Docker to the latest version and check if it resolves the issue. Refer to the Docker [installation guide](https://docs.docker.com/installation) for instructions.
 
-If that recommendations do not help then
-[report your issue](../../issues/new) along with the following
-information:
+If that recommendations do not help then [report your issue](../../issues/new) along with the following information:
 
 - Output of the `docker version` and `docker info` commands
 - The `docker run` command or `docker-compose.yml` used to start the
@@ -50,25 +44,15 @@ docker build . --tag 'quadstingray/mongodb:dev';
 Start MongoDB using:
 
 ```bash
-docker run --publish 27017:27017 \
-  --volume /srv/docker/mongodb:/var/lib/mongodb \
-  quadstingray/mongodb:latest
+docker run --publish 27017:27017 quadstingray/mongodb:latest
 ```
 
-*Alternatively, you can use the sample
-[docker-compose.yml](docker-compose.yml) file to start the container
-using [Docker Compose](https://docs.docker.com/compose/)*
+*Alternatively, you can use the sample [docker-compose.yml](docker-compose.yml) file to start the container using [Docker Compose](https://docs.docker.com/compose/)*
 
 ## Persistence
-For MongoDB to persist the state of the container across shutdown and startup,
-you should mount a volume at the data directory. The container image use
-by default `/var/lib/mongodb`. You can cange the data directory with the
-[Docker Environment Variable](https://docs.docker.com/compose/environment-variables/)
-`MONGO_DATA_DIR`.
+For MongoDB to persist the state of the container across shutdown and startup, you should mount a volume at the data directory. The container image use by default `/var/lib/mongodb`. You can cange the data directory with the [Docker Environment Variable](https://docs.docker.com/compose/environment-variables/) `MONGO_DATA_DIR`.
 
-> *The [Quickstart](#quickstart) and
-> [docker-compose.yml Sample](docker-compose.yml) command or the [Quickstart bash command](#Quickstart) already mounts a
-> volume for persistence.*
+> The [Quickstart](#quickstart) and [docker-compose.yml Sample](docker-compose.yml) command or the [Quickstart bash command](#Quickstart) already mounts a volume for persistence.
 
 ## Environment Variables
 
