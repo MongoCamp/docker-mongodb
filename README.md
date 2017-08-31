@@ -13,7 +13,7 @@
 Git-Repository to build [Docker](https://www.docker.com/) containerimage for [MongoDB](https://www.mongodb.org/).
 
 ## Contributing
-If you find this image helpfull, so you can here's how you can help:
+If you find this image helpfull, so you can see here how you can help:
 - Send a pull request with your features and bug fixes
 - Help users resolve their [issues](https://github.com/QuadStingray/docker-mongodb/issues).
 
