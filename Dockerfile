@@ -3,6 +3,7 @@ FROM ubuntu:16.04
 MAINTAINER quadstingray@siedler.com.de
 
 ENV MONGO_DATA_DIR=/var/lib/mongodb \
+    MONGO_EXTRA_ARGS="" \
     MONGO_ROOT_USERNAME=root \
     MONGO_ROOT_PWD=NONE \
     MONGO_USE_SYSLOG=false \
@@ -11,7 +12,6 @@ ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_WIREDTIGER_CACHE_SIZE_GB=NONE
 
 ARG MONGODB_VERSION="3.4.7"
-ARG MONGO_EXTRA_ARGS=""
 
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6 \
     && echo "deb [ arch=amd64 ] http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.4.list \

@@ -1,0 +1,13 @@
+version: '2'
+services:
+  MongoDB:
+    image: quadstingray/mongodb:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - /srv/docker/mongodb:/var/lib/mongodb
+    environment:
+      MONGO_ROOT_PWD: mySavePassword
+      MONGO_WIREDTIGER_CACHE_SIZE_GB: '4.21'
+      MONGO_EXTRA_ARGS: '--ipv6 --quiet'
+    restart: always
