@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-MAINTAINER quadstingray@siedler.com.de
+MAINTAINER QuadStingray <docker-mongodb@quadstingray.com>
 
 ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_EXTRA_ARGS="" \
