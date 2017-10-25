@@ -1,68 +1,31 @@
-# quadstingray/mongodb:3.4.9
+FROM ubuntu:16.04
 
-- [Introduction](#introduction)
-  - [Contributing](#contributing)
-  - [Issues](#issues)
-- [Getting started](#getting-started)
-  - [Installation](#installation)
-  - [Quickstart](#quickstart)
-  - [Persistence](#persistence)
-  - [Environment Variables](#environment-variables)
+MAINTAINER QuadStingray <docker-mongodb@quadstingray.com>
 
-# Introduction
-Git-Repository to build [Docker](https://www.docker.com/) containerimage for [MongoDB](https://www.mongodb.org/).
+ENV MONGO_DATA_DIR=/var/lib/mongodb \
+    MONGO_EXTRA_ARGS="" \
+    MONGO_ROOT_USERNAME=root \
+    MONGO_ROOT_PWD=NONE \
+    MONGO_USE_SYSLOG=false \
+    MONGO_MAX_CONNECTIONS=NONE \
+    MONGO_STORAGEENGINE=wiredTiger \
+    MONGO_WIREDTIGER_CACHE_SIZE_GB=NONE
 
-## Contributing
-If you find this image helpfull, so you can see here how you can help:
-- Send a pull request with your features and bug fixes
-- Help users resolve their [issues](https://github.com/QuadStingray/docker-mongodb/issues).
+ARG MONGODB_VERSION="3.4.10"
 
-## Issues
-Before reporting your issue please try updating Docker to the latest version and check if it resolves the issue. Refer to the Docker [installation guide](https://docs.docker.com/installation) for instructions.
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6 \
+    && echo "deb [ arch=amd64 ] http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.4.list \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} \
+    && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
+    && rm -rf /etc/mongod.conf \
+    && rm -rf /var/lib/apt/lists/*
 
-If that recommendations do not help then [report your issue](../../issues/new) along with the following information:
+COPY entrypoint.sh /sbin/entrypoint.sh
+RUN chmod 755 /sbin/entrypoint.sh
 
-- Output of the `docker version` and `docker info` commands
-- The `docker run` command or `docker-compose.yml` used to start the
-  image. Mask out the sensitive bits.
-
-# Getting started
-## Installation
-Automated builds of the image are available on
-[Dockerhub](https://hub.docker.com/r/quadstingray/mongodb/)
-
-```bash
-docker pull quadstingray/mongodb:3.4.9
-```
-
-Alternatively you can build the image yourself.
-```bash
-docker build . --tag 'quadstingray/mongodb:dev';
-```
-
-## Quickstart
-Start MongoDB using:
-
-```bash
-docker run --publish 27017:27017 quadstingray/mongodb:3.4.9
-```
-
-*Alternatively, you can use the sample [docker-compose.yml](docker-compose.yml) file to start the container using [Docker Compose](https://docs.docker.com/compose/)*
-
-## Persistence
-For MongoDB to persist the state of the container across shutdown and startup, you should mount a volume at the data directory. The container image use by default `/var/lib/mongodb`. You can cange the data directory with the [Docker Environment Variable](https://docs.docker.com/compose/environment-variables/) `MONGO_DATA_DIR`.
-
-> The [Quickstart](#quickstart) and [docker-compose.yml Sample](docker-compose.yml) command or the [Quickstart bash command](#Quickstart) already mounts a volume for persistence.
-
-## Environment Variables
-
-| Variable                       | Default Value    | Informations                                                                                                                                                                                                                                |
-|:-------------------------------|:-----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| MONGO_DATA_DIR                 | /var/lib/mongodb |                                                                                                                                                                                                                                             |
-| MONGO_ROOT_USERNAME            | root             |                                                                                                                                                                                                                                             |
-| MONGO_ROOT_PWD                 | NONE             | If the param not equal `NONE` or "" the MongoDB [authorization](https://docs.mongodb.com/manual/reference/program/mongod/#cmdoption-auth) will enabled. The password of the `MONGO_ROOT_USERNAME` will be reseted on every container start. |
-| MONGO_USE_SYSLOG               | false            | Enable Loging to [SysLog](https://docs.mongodb.com/manual/reference/program/mongod/#cmdoption-syslog)                                                                                                                                       |
-| MONGO_STORAGEENGINE            | wiredTiger       | Value for the [storageEngine](https://docs.mongodb.com/manual/reference/program/mongod/#cmdoption-storageengine) parameter                                                                                                                  |
-| MONGO_WIREDTIGER_CACHE_SIZE_GB | NONE             | Value for the [wiredTigerCacheSizeGB](https://docs.mongodb.com/manual/reference/program/mongod/#wiredtiger-options) parameter                                                                                                               |
-| MONGO_MAX_CONNECTIONS          | NONE             | Value for the [maxConns](https://docs.mongodb.com/manual/reference/program/mongod/#cmdoption-maxconns) parameter if not equal `NONE`                                                                                                        |
-| MONGO_EXTRA_ARGS               |                  | You can use every `mongod` [commandline option](https://docs.mongodb.com/manual/reference/program/mongod/#options)                                                                                                                          |
+EXPOSE 27017/tcp
+VOLUME ["${MONGO_DATA_DIR}"]
+ENTRYPOINT ["/sbin/entrypoint.sh"]
+CMD ["/usr/bin/mongod"]
