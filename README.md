@@ -1,4 +1,4 @@
-# quadstingray/mongodb:3.4.9
+# quadstingray/mongodb:3.4.10
 
 - [Introduction](#introduction)
   - [Contributing](#contributing)
