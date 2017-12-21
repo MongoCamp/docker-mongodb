@@ -60,6 +60,11 @@ if [[ -z ${1} ]]; then
   	MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --syslog"
   fi
 
+  if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
+  	echo "use syslog"
+  	MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --replSet ${MONGO_REPLICA_SET_NAME}"
+  fi
+
   sleep 15 
   echo "Starting mongod..."  
   mongod --port 27017 --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 
