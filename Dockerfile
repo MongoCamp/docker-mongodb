@@ -5,6 +5,7 @@ MAINTAINER QuadStingray <docker-mongodb@quadstingray.com>
 ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_EXTRA_ARGS="" \
     MONGO_ROOT_USERNAME=root \
+    MONGO_PORT=27017 \
     MONGO_ROOT_PWD=NONE \
     MONGO_USE_SYSLOG=false \
     MONGO_MAX_CONNECTIONS=NONE \
@@ -26,7 +27,6 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14
 COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
 
-EXPOSE 27017/tcp
 VOLUME ["${MONGO_DATA_DIR}"]
 ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["/usr/bin/mongod"]

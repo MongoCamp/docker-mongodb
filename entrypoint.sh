@@ -36,14 +36,14 @@ fi
 if [[ -z ${1} ]]; then
 
   echo "Upgrade MongoDb stored files if needed"
-  mongod --upgrade --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
+  mongod --port ${MONGO_PORT} --upgrade --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
   
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
     echo "Starting mongod to insert the Root User ..."
-	mongod --fork --syslog --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
+	mongod --port ${MONGO_PORT}  --fork --syslog --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
 		
 	echo "Admin User to Database"
-	mongo admin --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
+	mongo admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
 
  	echo "Stop mongod for insert USER ..."
  	pkill -f mongo
@@ -67,7 +67,7 @@ if [[ -z ${1} ]]; then
 
   sleep 15 
   echo "Starting mongod..."  
-  mongod --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
+  mongod --port ${MONGO_PORT}  --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
 else
   exec "$@"
 fi
