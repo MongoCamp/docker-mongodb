@@ -36,11 +36,11 @@ fi
 if [[ -z ${1} ]]; then
 
   echo "Upgrade MongoDb stored files if needed"
-  mongod --port 27017 --upgrade --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 
+  mongod --upgrade --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
   
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
     echo "Starting mongod to insert the Root User ..."
-	mongod --fork --syslog --port 27017 --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
+	mongod --fork --syslog --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
 		
 	echo "Admin User to Database"
 	mongo admin --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
@@ -67,7 +67,7 @@ if [[ -z ${1} ]]; then
 
   sleep 15 
   echo "Starting mongod..."  
-  mongod --port 27017 --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 
+  mongod --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
 else
   exec "$@"
 fi
