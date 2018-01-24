@@ -67,7 +67,10 @@ if [[ -z ${1} ]]; then
 
   sleep 15
   echo "Starting mongod..."
-  mongod --port ${MONGO_PORT}  --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
+  mongod --port ${MONGO_PORT}  --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --bind_id_all
+
+  mongo admin --port ${MONGO_PORT}  --eval "db.adminCommand( { setFeatureCompatibilityVersion: '3.6' } );"
+
 else
   exec "$@"
 fi
