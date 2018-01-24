@@ -27,6 +27,9 @@ fi
 echo "Set StorageEngine to <${MONGO_STORAGEENGINE}>"
 MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --storageEngine ${MONGO_STORAGEENGINE}"
 
+echo "Set IpBinding to <${MONGO_BINDING}>"
+MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} ${MONGO_BINDING}"
+
 if [[ ${MONGO_MAX_CONNECTIONS} != 'NONE' ]]; then
   echo "Set Max Connections to <${MONGO_MAX_CONNECTIONS}>"
   MONGO_MAX_CONNECTIONS="${MONGO_EXTRA_ARGS} --maxConns ${MONGO_MAX_CONNECTIONS}"
@@ -67,7 +70,7 @@ if [[ -z ${1} ]]; then
 
   sleep 15
   echo "Starting mongod..."
-  mongod --port ${MONGO_PORT}  --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --bind_id_all
+  mongod --port ${MONGO_PORT}  --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
 
   mongo admin --port ${MONGO_PORT}  --eval "db.adminCommand( { setFeatureCompatibilityVersion: '3.6' } );"
 

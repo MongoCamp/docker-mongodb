@@ -1,4 +1,4 @@
-# quadstingray/mongodb:3.6.2
+# quadstingray/mongodb:3.6.1
 
 - [Introduction](#introduction)
   - [Contributing](#contributing)
@@ -32,7 +32,7 @@ Automated builds of the image are available on
 [Dockerhub](https://hub.docker.com/r/quadstingray/mongodb/)
 
 ```bash
-docker pull quadstingray/mongodb:3.6.2
+docker pull quadstingray/mongodb:3.6.1
 ```
 
 Alternatively you can build the image yourself.
@@ -44,7 +44,7 @@ docker build . --tag 'quadstingray/mongodb:dev';
 Start MongoDB using:
 
 ```bash
-docker run --publish 27017:27017 quadstingray/mongodb:3.6.2
+docker run --publish 27017:27017 quadstingray/mongodb:3.6.1
 ```
 
 *Alternatively, you can use the sample [docker-compose.yml](docker-compose.yml) file to start the container using [Docker Compose](https://docs.docker.com/compose/)*
@@ -67,4 +67,5 @@ For MongoDB to persist the state of the container across shutdown and startup, y
 | MONGO_WIREDTIGER_CACHE_SIZE_GB | NONE             | Value for the [wiredTigerCacheSizeGB](https://docs.mongodb.com/manual/reference/program/mongod/#wiredtiger-options) parameter                                                                                                               |
 | MONGO_MAX_CONNECTIONS          | NONE             | Value for the [maxConns](https://docs.mongodb.com/manual/reference/program/mongod/#cmdoption-maxconns) parameter if not equal `NONE`                                                                                                        |
 | MONGO_REPLICA_SET_NAME         |                  | set name for replSet [replication options](https://docs.mongodb.com/manual/reference/program/mongod/#replication-options)                                                                                                                   |
+| MONGO_BINDING                  | --bind_ip_all    | ip binding  [ip binding options](https://docs.mongodb.com/manual/reference/program/mongod/#cmdoption-mongod-bind-ip)                                                                                      |
 | MONGO_EXTRA_ARGS               |                  | You can use every `mongod` [commandline option](https://docs.mongodb.com/manual/reference/program/mongod/#options)                                                                                                                          |
