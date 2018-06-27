@@ -14,13 +14,15 @@ ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_BINDING=--bind_ip_all \
     MONGO_REPLICA_SET_NAME=NONE
 
-ARG MONGODB_VERSION="3.6.5"
+ARG MONGODB_VERSION="4.0.0"
 
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5 \
-    && echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.6 main" | tee /etc/apt/sources.list.d/mongodb-org-3.6.list \
+EXPOSE 27017/tcp
+
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4 \
+    && echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org=${MONGODB_VERSION} mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} mongodb-org-mongos=${MONGODB_VERSION} mongodb-org-tools=${MONGODB_VERSION}\
     && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
     && rm -rf /etc/mongod.conf \
     && rm -rf /var/lib/apt/lists/*
