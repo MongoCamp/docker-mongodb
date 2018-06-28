@@ -72,7 +72,8 @@ if [[ -z ${1} ]]; then
   echo "Starting mongod..."
   mongod --port ${MONGO_PORT}  --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
 
-  mongo admin --port ${MONGO_PORT}  --eval "db.adminCommand( { setFeatureCompatibilityVersion: '4.0' } );"
+  echo "Set Version to 4.0"
+  mongo admin --port ${MONGO_PORT}  --eval "db.adminCommand( { setFeatureCompatibilityVersion: "4.0" } ); db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
 
 else
   exec "$@"
