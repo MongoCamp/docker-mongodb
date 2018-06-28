@@ -41,22 +41,26 @@ if [[ -z ${1} ]]; then
   echo "Upgrade MongoDb stored files if needed"
   mongod --port ${MONGO_PORT} --upgrade --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
 
+  echo "Starting mongod for upgrade Informations"
+  mongod --port ${MONGO_PORT}  --fork --syslog --dbpath ${MONGO_DATA_DIR} 2>&1
+
+  echo "Set Version to 4.0"
+  mongo admin --port ${MONGO_PORT}  --eval "db.adminCommand( { setFeatureCompatibilityVersion: "4.0" } ); db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
+
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
-    echo "Starting mongod to insert the Root User ..."
-    mongod --port ${MONGO_PORT}  --fork --syslog --dbpath ${MONGO_DATA_DIR} 2>&1
 
     echo "Admin User to Database"
     mongo admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
 
-    echo "Stop mongod for insert USER ..."
-    pkill -f mongo
-    pkill -f mongod
   fi
+
+  echo "Stop mongod for insert USER or Update Feature Version ..."
+  pkill -f mongo
+  pkill -f mongod
 
   if [[ ${MONGO_ROOT_PWD} != 'NONE' ]]; then
     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --auth"
   fi
-
 
   if [[ ${MONGO_USE_SYSLOG} == 'true' || ${MONGO_USE_SYSLOG} == 'TRUE' ]]; then
      echo "use syslog"
@@ -68,15 +72,7 @@ if [[ -z ${1} ]]; then
      MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --replSet ${MONGO_REPLICA_SET_NAME}"
   fi
 
-  sleep 15
   echo "Starting mongod..."
-  mongod --port ${MONGO_PORT}  --fork --syslog --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}  2>&1
-
-  echo "Set Version to 4.0"
-  mongo admin --port ${MONGO_PORT}  --eval "db.adminCommand( { setFeatureCompatibilityVersion: "4.0" } ); db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
-  pkill -f mongo
-  pkill -f mongod
-
   sleep 15
   mongod --port ${MONGO_PORT}  --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
 
