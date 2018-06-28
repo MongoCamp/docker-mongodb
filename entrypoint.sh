@@ -70,10 +70,15 @@ if [[ -z ${1} ]]; then
 
   sleep 15
   echo "Starting mongod..."
-  mongod --port ${MONGO_PORT}  --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
+  mongod --port ${MONGO_PORT}  --fork --syslog --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}  2>&1
 
   echo "Set Version to 4.0"
   mongo admin --port ${MONGO_PORT}  --eval "db.adminCommand( { setFeatureCompatibilityVersion: "4.0" } ); db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
+  pkill -f mongo
+  pkill -f mongod
+
+  sleep 15
+  mongod --port ${MONGO_PORT}  --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
 
 else
   exec "$@"
