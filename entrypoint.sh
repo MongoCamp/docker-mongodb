@@ -44,8 +44,8 @@ if [[ -z ${1} ]]; then
   echo "Starting mongod for upgrade Informations"
   mongod --port ${MONGO_PORT}  --fork --syslog --dbpath ${MONGO_DATA_DIR} 2>&1
 
-  echo "Set Version to 4.0"
-  mongo admin --port ${MONGO_PORT}  --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "4.0" } ); db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );'
+  echo "Set Version to 4.2"
+  mongo admin --port ${MONGO_PORT}  --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "4.2" } ); db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );'
 
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
 
