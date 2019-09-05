@@ -19,7 +19,7 @@ ARG MONGODB_VERSION="4.2.0"
 EXPOSE 27017/tcp
 
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y wget gnupg\
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y wget gnupg procps \
     && wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - \
     && echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list \
     && apt-get update \
