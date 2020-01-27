@@ -1,4 +1,4 @@
-# quadstingray/mongodb:4.2.2
+# quadstingray/mongodb:4.2.3
 
 - [Introduction](#introduction)
   - [Contributing](#contributing)
@@ -32,7 +32,7 @@ Automated builds of the image are available on
 [Dockerhub](https://hub.docker.com/r/quadstingray/mongodb/)
 
 ```bash
-docker pull quadstingray/mongodb:4.2.2
+docker pull quadstingray/mongodb:4.2.3
 ```
 
 Alternatively you can build the image yourself.
@@ -44,7 +44,7 @@ docker build . --tag 'quadstingray/mongodb:dev';
 Start MongoDB using:
 
 ```bash
-docker run --publish 27017:27017 quadstingray/mongodb:4.2.2
+docker run --publish 27017:27017 quadstingray/mongodb:4.2.3
 ```
 
 *Alternatively, you can use the sample [docker-compose.yml](docker-compose.yml) file to start the container using [Docker Compose](https://docs.docker.com/compose/)*
