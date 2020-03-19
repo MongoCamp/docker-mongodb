@@ -1,5 +1,7 @@
 # quadstingray/mongodb:4.2.3
 
+![Docker Build Status](https://img.shields.io/docker/build/quadstingray/mongodb) ![Docker Pulls](https://img.shields.io/docker/pulls/quadstingray/mongodb) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/quadstingray/mongodb) ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/quadstingray/mongodb) ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/quadstingray/docker-mongodb) 
+
 - [Introduction](#introduction)
   - [Contributing](#contributing)
   - [Issues](#issues)
