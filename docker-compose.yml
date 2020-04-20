@@ -1,7 +1,7 @@
 version: '2'
 services:
   MongoDB:
-    image: quadstingray/mongodb:4.2.5
+    image: quadstingray/mongodb:4.2.6
     ports:
       - "27017:27017"
     volumes:
