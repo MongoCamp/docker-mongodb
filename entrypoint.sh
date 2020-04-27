@@ -35,7 +35,9 @@ create_data_dir() {
 stop_mongod() {
   echo "[entrypoint.sh] Stop mongod"
   PID=`pgrep mongod`
-  mongo admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );'
+  if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
+      mongo admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );'
+  fi
   mongo admin --port ${MONGO_PORT} --eval 'db.shutdownServer();'
   while ps -p $PID &>/dev/null; do
       sleep 1
