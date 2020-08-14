@@ -88,6 +88,12 @@ if [[ -z ${1} ]]; then
     echo "[entrypoint.sh] Admin User to Database"
     mongo admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
   fi
+
+  if [[ ${MONGO_REPLICA_SET_NAME} == 'Standalone0' ]]; then
+    echo "[entrypoint.sh] remove replicaSet definition for 'Standalone0' replicaSet"
+    mongo local --port ${MONGO_PORT}  --eval "db.dropDatabase();"
+  fi
+
   echo "[entrypoint.sh] Stop mongod for insert USER or Update Feature Version ..."
   stop_mongod
 
