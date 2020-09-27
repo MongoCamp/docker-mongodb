@@ -21,8 +21,8 @@ EXPOSE 27017/tcp
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y wget gnupg procps \
-    && wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add - \
-    && echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
+    && wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - \
+    && echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org= ${MONGODB_VERSION} mongodb-org-server= ${MONGODB_VERSION} mongodb-org-shell= ${MONGODB_VERSION} mongodb-org-mongos= ${MONGODB_VERSION} mongodb-org-tools= ${MONGODB_VERSION} \
