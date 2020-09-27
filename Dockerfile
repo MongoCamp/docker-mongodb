@@ -25,7 +25,8 @@ RUN apt-get update \
     && echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y systemd mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} mongodb-org-mongos=${MONGODB_VERSION} mongodb-org=${MONGODB_VERSION} \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y systemd \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} mongodb-org-mongos=${MONGODB_VERSION} mongodb-org=${MONGODB_VERSION} \
     && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
     && rm -rf /etc/mongod.conf \
     && rm -rf /var/lib/apt/lists/*
