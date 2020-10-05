@@ -127,7 +127,7 @@ if [[ -z ${1} ]]; then
 
   PID=`pgrep mongod`
   while ps -p $PID &>/dev/null; do
-      sleep 1
+      sleep 10
   done
 
 else
