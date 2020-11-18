@@ -15,7 +15,7 @@ ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_BINDING=--bind_ip_all \
     MONGO_REPLICA_SET_NAME=Standalone0
 
-ARG MONGODB_VERSION="4.4.1"
+ARG MONGODB_VERSION="4.4.2"
 
 EXPOSE 27017/tcp
 
