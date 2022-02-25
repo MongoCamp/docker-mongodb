@@ -1,6 +1,6 @@
 # quadstingray/mongodb:5.0.6
 
-![Docker Build Status](https://img.shields.io/docker/build/quadstingray/mongodb) ![Docker Pulls](https://img.shields.io/docker/pulls/quadstingray/mongodb) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/quadstingray/mongodb) ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/quadstingray/mongodb) ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/quadstingray/docker-mongodb)
+![Build](https://github.com/quadstingray/docker-mongodb/actions/workflows/master_build_release.yml/badge.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/quadstingray/mongodb) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/quadstingray/mongodb) ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/quadstingray/mongodb) ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/quadstingray/docker-mongodb)
 
 - [Introduction](#introduction)
     - [Contributing](#contributing)
