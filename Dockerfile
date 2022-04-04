@@ -1,6 +1,6 @@
 FROM debian:10-slim
 
-MAINTAINER QuadStingray <docker-mongodb@quadstingray.com>
+MAINTAINER MongoCamp Team <docker-mongodb@mongocamp.dev>
 
 ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_EXTRA_ARGS="" \

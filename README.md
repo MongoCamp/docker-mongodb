@@ -1,6 +1,6 @@
-# quadstingray/mongodb:5.0.6
+# MongoCamp/mongodb:5.0.6
 
-![Build](https://github.com/quadstingray/docker-mongodb/actions/workflows/master_build_release.yml/badge.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/quadstingray/mongodb) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/quadstingray/mongodb) ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/quadstingray/mongodb) ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/quadstingray/docker-mongodb)
+![Build](https://github.com/MongoCamp/docker-mongodb/actions/workflows/master_build_release.yml/badge.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/mongocamp/mongodb) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/mongocamp/mongodb) ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/mongocamp/mongodb) ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/mongocamp/docker-mongodb)
 
 - [Introduction](#introduction)
     - [Contributing](#contributing)
@@ -12,18 +12,15 @@
     - [Environment Variables](#environment-variables)
 
 # Introduction
-
 Git-Repository to build [Docker](https://www.docker.com/) containerimage for [MongoDB](https://www.mongodb.org/).
 
 ## Contributing
-
 If you find this image helpfull, so you can see here how you can help:
 
 - Send a pull request with your features and bug fixes
-- Help users resolve their [issues](https://github.com/QuadStingray/docker-mongodb/issues).
+- Help users resolve their [issues](https://github.com/MongoCamp/docker-mongodb/issues).
 
 ## Issues
-
 Before reporting your issue please try updating Docker to the latest version and check if it resolves the issue. Refer to the
 Docker [installation guide](https://docs.docker.com/installation) for instructions.
 
@@ -35,18 +32,17 @@ If that recommendations do not help then [report your issue](../../issues/new) a
 # Getting started
 
 ## Installation
-
 Automated builds of the image are available on
-[Dockerhub](https://hub.docker.com/r/quadstingray/mongodb/)
+[Dockerhub](https://hub.docker.com/r/mongocamp/mongodb/)
 
 ```bash
-docker pull quadstingray/mongodb:5.0.6
+docker pull mongocamp/mongodb:5.0.6
 ```
 
 Alternatively you can build the image yourself.
 
 ```bash
-docker build . --tag 'quadstingray/mongodb:dev';
+docker build . --tag 'mongocamp/mongodb:dev';
 ```
 
 ## Quickstart
@@ -54,7 +50,7 @@ docker build . --tag 'quadstingray/mongodb:dev';
 Start MongoDB using:
 
 ```bash
-docker run --publish 27017:27017 quadstingray/mongodb:5.0.6
+docker run --publish 27017:27017 mongocamp/mongodb:5.0.6
 ```
 
 *Alternatively, you can use the sample [docker-compose.yml](docker-compose.yml) file to start the container using [Docker Compose](https://docs.docker.com/compose/)*
