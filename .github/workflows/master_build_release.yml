@@ -38,5 +38,6 @@ jobs:
         with:
           user: ${{ secrets.DOCKERHUB_USER }}
           pass: ${{ secrets.DOCKERHUB_PASSWORD }}
+          slug: mongocamp/mongodb
           readme: README.md
           description: true
