@@ -33,7 +33,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           
-      - uses: Update Readme at Dockerhub
+      - name: Check out the repo
+        uses: meeDamian/sync-readme@v1.0.6
         with:
           user: ${{ secrets.DOCKERHUB_USER }}
           pass: ${{ secrets.DOCKERHUB_PASSWORD }}
