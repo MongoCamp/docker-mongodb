@@ -81,8 +81,10 @@ if [[ -z ${1} ]]; then
   echo "[entrypoint.sh] Starting mongod for upgrade Informations"
   mongod --port ${MONGO_PORT} --fork --syslog --dbpath ${MONGO_DATA_DIR} 2>&1
 
-  echo "[entrypoint.sh] Set Version to 5.0"
-  mongo admin --port ${MONGO_PORT} --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "5.0" } ); db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );'
+  MONGODB_SHORT=$(cat mongoshort.txt)
+
+  echo "[entrypoint.sh] Set Version to ${MONGODB_SHORT}"
+  mongo admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: "${MONGODB_SHORT}" } ); db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
 
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
     echo "[entrypoint.sh] Admin User to Database"
