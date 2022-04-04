@@ -33,9 +33,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           
-      - uses: meeDamian/sync-readme@v1.0.6
+      - uses: Update Readme at Dockerhub
         with:
           user: ${{ secrets.DOCKERHUB_USER }}
           pass: ${{ secrets.DOCKERHUB_PASSWORD }}
-          readme: ./README.md
+          readme: README.md
           description: true
