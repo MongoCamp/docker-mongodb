@@ -1,4 +1,4 @@
-FROM debian:10-slim
+FROM debian:11-slim
 
 MAINTAINER MongoCamp Team <docker-mongodb@mongocamp.dev>
 
@@ -19,19 +19,26 @@ ARG MONGODB_VERSION="5.0.6"
 
 EXPOSE 27017/tcp
 
-RUN apt-get update  \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y wget gnupg procps apt-utils \
-    && wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
-    && echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/5.0 main" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
-    && apt-get update \
-    && apt-get install gnupg \
-    && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
-    && ln -s /bin/true /bin/systemctl \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} mongodb-org-mongos=${MONGODB_VERSION} mongodb-org=${MONGODB_VERSION} \
-    && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
-    && rm -rf /etc/mongod.conf \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /bin/systemctl
+RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | while IFS=. read a b c; do echo "$a.$b"; done;); \ 
+    echo $MONGODB_SHORT > mongoshort.txt; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg procps gnupg; \
+    curl -sSL https://www.mongodb.org/static/pgp/server-5.0.asc  -o mongoserver.asc;  \
+    gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --import ./mongoserver.asc; \
+    gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --export > ./mongoserver_key.gpg; \
+    mv mongoserver_key.gpg /etc/apt/trusted.gpg.d/; \
+    echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/${MONGODB_SHORT} main" | tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_SHORT.list;  \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade -y; \
+    ln -s /bin/true /bin/systemctl; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} mongodb-org-mongos=${MONGODB_VERSION} mongodb-org=${MONGODB_VERSION}; \
+    DEBIAN_FRONTEND=noninteractive apt-get autoremove -y; \
+    rm -rf /etc/mongod.conf; \
+    rm -rf /var/lib/apt/lists/*; \
+    rm -rf /bin/systemctl; \ 
+    rm -rf mongo_key_temp.gpg \
+    rm -rf mongo_key_temp.gpg~ \
+    rm -rf mongoserver.asc
 
 COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
