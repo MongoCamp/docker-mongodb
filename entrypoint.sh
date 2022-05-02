@@ -117,21 +117,21 @@ if [[ -z ${1} ]]; then
     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --auth"
   fi
 
-  if [[ ${MONGO_USE_SYSLOG} == 'true' || ${MONGO_USE_SYSLOG} == 'TRUE' ]]; then
-     echo "[entrypoint.sh] use syslog"
-     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --syslog"
-  elif [ ${MONGO_LOG_PATH} != 'NONE' && ${MONGO_LOG_PATH} != '' ]]; then
+  if [[ ${MONGO_LOG_PATH} != 'NONE' && ${MONGO_LOG_PATH} != '' ]]; then
      echo "[entrypoint.sh] set logpath"
-     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --logpath ${MONGO_LOG_PATH}"
+     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --logpath ${MONGO_LOG_PATH}/mongodb.log"
+     echo "[entrypoint.sh] Starting mongod..."
+     mongod --port ${MONGO_PORT} --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --fork 2>&1
+     echo "[entrypoint.sh] Start following the mongodb log"
+     tail -f "${MONGO_LOG_PATH}/mongodb.log"
+  else
+     echo "[entrypoint.sh] Starting mongod..."
+     mongod --port ${MONGO_PORT} --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --syslog --fork 2>&1
+     PID=`pgrep mongod`
+     while ps -p $PID &>/dev/null; do
+        sleep 10
+     done
   fi
-
-  echo "[entrypoint.sh] Starting mongod..."
-  mongod --port ${MONGO_PORT} --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --fork 2>&1
-
-  PID=`pgrep mongod`
-  while ps -p $PID &>/dev/null; do
-      sleep 10
-  done
 
 else
   exec "$@"

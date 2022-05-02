@@ -7,7 +7,6 @@ ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_ROOT_USERNAME=root \
     MONGO_PORT=27017 \
     MONGO_ROOT_PWD=NONE \
-    MONGO_USE_SYSLOG=true \
     MONGO_LOG_PATH=/var/log/mongodb \
     MONGO_MAX_CONNECTIONS=NONE \
     MONGO_STORAGEENGINE=wiredTiger \
@@ -35,7 +34,7 @@ RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | whil
     DEBIAN_FRONTEND=noninteractive apt-get autoremove -y; \
     rm -rf /etc/mongod.conf; \
     rm -rf /var/lib/apt/lists/*; \
-    rm -rf /bin/systemctl; \ 
+    rm -rf /bin/systemctl; \
     rm -rf mongo_key_temp.gpg \
     rm -rf mongo_key_temp.gpg~ \
     rm -rf mongoserver.asc
