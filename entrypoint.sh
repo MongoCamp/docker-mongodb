@@ -2,7 +2,7 @@
 set -e
 
 function setup_signals {
-  echo "[entrypoint.sh] Setup shoutdown signals"
+  echo "[entrypoint.sh] Setup shutdown signals"
   cid="$1"; shift
   handler="$1"; shift
   for sig; do
@@ -42,7 +42,7 @@ stop_mongod() {
   while ps -p $PID &>/dev/null; do
       sleep 1
   done
-  echo "[entrypoint.sh] MongoDB stoped"
+  echo "[entrypoint.sh] MongoDB stopped"
 }
 
 create_data_dir
@@ -84,7 +84,8 @@ if [[ -z ${1} ]]; then
   MONGODB_SHORT=$(cat mongoshort.txt)
 
   echo "[entrypoint.sh] Set Version to ${MONGODB_SHORT}"
-  mongo admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: "${MONGODB_SHORT}" } ); db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
+  mongo admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: "${MONGODB_SHORT}" } );"
+  mongo admin --port ${MONGO_PORT} --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
 
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
     echo "[entrypoint.sh] Admin User to Database"
@@ -100,7 +101,7 @@ if [[ -z ${1} ]]; then
   stop_mongod
 
   if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
-     echo "[entrypoint.sh] use ReplicaSet defintion"
+     echo "[entrypoint.sh] use ReplicaSet definition"
      MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --replSet ${MONGO_REPLICA_SET_NAME}"
 
      echo "[entrypoint.sh] Starting mongod for checking and initiate ReplicaSet"
