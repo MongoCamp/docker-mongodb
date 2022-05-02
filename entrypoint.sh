@@ -84,7 +84,7 @@ if [[ -z ${1} ]]; then
   MONGODB_SHORT=$(cat mongoshort.txt)
 
   echo "[entrypoint.sh] Set Version to ${MONGODB_SHORT}"
-  mongo admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: "${MONGODB_SHORT}" } );"
+  mongo admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: '"${MONGODB_SHORT}"' } );"
   mongo admin --port ${MONGO_PORT} --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
 
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
