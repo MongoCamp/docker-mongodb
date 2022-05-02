@@ -15,7 +15,7 @@ ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_BINDING=--bind_ip_all \
     MONGO_REPLICA_SET_NAME=NONE
 
-ARG MONGODB_VERSION="5.0.8"
+ARG MONGODB_VERSION="4.4.13"
 
 EXPOSE 27017/tcp
 
@@ -23,7 +23,7 @@ RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | whil
     echo $MONGODB_SHORT > mongoshort.txt; \
     apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg procps gnupg; \
-    curl -sSL https://www.mongodb.org/static/pgp/server-5.0.asc  -o mongoserver.asc;  \
+    curl -sSL https://www.mongodb.org/static/pgp/server-4.4.asc  -o mongoserver.asc;  \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --import ./mongoserver.asc; \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --export > ./mongoserver_key.gpg; \
     mv mongoserver_key.gpg /etc/apt/trusted.gpg.d/; \
