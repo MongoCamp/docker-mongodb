@@ -28,7 +28,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.0.0
@@ -38,7 +38,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Check out the repo
+      - name: Update readme at Dockerhub
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: meeDamian/sync-readme@v1.0.6
         with:
