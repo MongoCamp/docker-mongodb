@@ -24,6 +24,8 @@ jobs:
         uses: docker/metadata-action@v4.0.1
         with:
           images: mongocamp/mongodb
+          flavor: |
+            latest=${{ github.ref == 'refs/heads/main' }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
