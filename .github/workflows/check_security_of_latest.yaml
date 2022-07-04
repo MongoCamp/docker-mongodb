@@ -1,7 +1,7 @@
 name: Check Security of  latest image on Dockerhun
 on:
   schedule:
-    - cron: '20 15 * * MON'
+    - cron: '0 14 * * 1'
 
 jobs:
   build:
