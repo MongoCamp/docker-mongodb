@@ -1,4 +1,4 @@
-FROM debian:11-slim
+FROM debian:stable-slim
 
 MAINTAINER MongoCamp Team <docker-mongodb@mongocamp.dev>
 
@@ -28,6 +28,7 @@ RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | whil
     mv mongoserver_key.gpg /etc/apt/trusted.gpg.d/; \
     echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/${MONGODB_SHORT} main" | tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_SHORT.list;  \
     apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get purge -y curl gnupg procps gnupg; \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y; \
     ln -s /bin/true /bin/systemctl; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} mongodb-org-mongos=${MONGODB_VERSION} mongodb-org=${MONGODB_VERSION}; \
