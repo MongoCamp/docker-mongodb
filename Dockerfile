@@ -21,14 +21,13 @@ EXPOSE 27017/tcp
 RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | while IFS=. read a b c; do echo "$a.$b"; done;); \ 
     echo $MONGODB_SHORT > mongoshort.txt; \
     apt-get update; \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg procps gnupg; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg; \
     curl -sSL https://www.mongodb.org/static/pgp/server-5.0.asc  -o mongoserver.asc;  \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --import ./mongoserver.asc; \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --export > ./mongoserver_key.gpg; \
     mv mongoserver_key.gpg /etc/apt/trusted.gpg.d/; \
     echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/${MONGODB_SHORT} main" | tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_SHORT.list;  \
-    apt-get update; \
-    grep -A 1 'Commandline: apt-get install -y curl gnupg procps gnupg' /var/log/apt/history.log | tail -1 >/tmp/packages.txt;  \
+    grep -A 1 'Commandline: apt-get install -y curl gnupg' /var/log/apt/history.log | tail -1 >/tmp/packages.txt;  \
     sed -i 's/Install://' /tmp/packages.txt;  \
     tr ',' '\n' < /tmp/packages.txt | sed '/automatic)/d' | awk '{ print $1}' > /tmp/final.packages.txt;  \
     wc -l /tmp/final.packages.txt;  \
@@ -36,6 +35,8 @@ RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | whil
     DEBIAN_FRONTEND=noninteractive apt-get --purge -y remove $p;  \
     rm -rf /tmp/packages.txt;  \
     rm -rf /tmp/final.packages.txt; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y procps; \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y; \
     ln -s /bin/true /bin/systemctl; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} mongodb-org-mongos=${MONGODB_VERSION} mongodb-org=${MONGODB_VERSION}; \
