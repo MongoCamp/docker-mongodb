@@ -39,3 +39,29 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+.DS_Store
+lib_managed/
+project/boot/
+project/build/target/
+target/
+src_managed/
+project/plugins/project/
+.idea/
+.bsp
+logs
+target
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+.DS_Store
+sbt-cache
+sbt-cache/*
+.gitconfig
+test/project/target
+test/target
+.bsp
+/test
+test/*
+test
