@@ -6,9 +6,77 @@ on:
       - '*'
 
 jobs:
+  build_test_container:
+    name: Build new Test Container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4.0.1
+        with:
+          images: mongocamp/mongodb
+          flavor: |
+            latest=false
+          tags: |
+            type=semver,pattern=${{ github.sha }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3.0.0
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: build_test_container
+    strategy:
+      matrix:
+        mongodb-version: [ ${{ github.sha }} ]
+        mongodb-port: [ '27017', '4711' ]
+        mongodb-username: [ 'root', 'test' ]
+        mongodb-pwd: [ 'NONE', 'hello-world' ]
+        mongodb-replica-set: [ '', 'my-replication' ]
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Start MongoDB ${{ matrix.mongodb-version }}
+        uses: MongoCamp/mongodb-github-action@0.5.0
+        with:
+          mongodb-version: ${{ matrix.mongodb-version }}
+          mongodb-port: ${{ matrix.mongodb-port }}
+          mongodb-username: ${{ matrix.mongodb-username }}
+          mongodb-pwd: ${{ matrix.mongodb-pwd }}
+          mongodb-replica-set: ${{ matrix.mongodb-replica-set }}
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3.3.0
+        with:
+          distribution: 'corretto'
+          java-version: 17
+      - name: Run tests
+        with:
+          mongodb-version: ${{ matrix.mongodb-version }}
+          mongodb-port: ${{ matrix.mongodb-port }}
+          mongodb-username: ${{ matrix.mongodb-username }}
+          mongodb-pwd: ${{ matrix.mongodb-pwd }}
+          mongodb-replica-set: ${{ matrix.mongodb-replica-set }}
+        run: sbt test
+
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    needs: test
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -55,7 +123,6 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
