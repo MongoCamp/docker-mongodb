@@ -12,7 +12,7 @@ class BaseSuite extends munit.FunSuite with LazyLogging with DocumentIncludes{
   lazy val mongoConfig: MongoConfig = {
     val dbPort = loadEnvValue("mongodb-port", (key: String) => key.toInt).getOrElse(MongoConfig.DefaultPort)
     val dbUser = loadEnvValue("mongodb-username", (key: String) => key)
-    val dbPassword = loadEnvValue("mongodb-pwd", (key: String) => key)
+    val dbPassword = loadEnvValue("mongodb-pwd", (key: String) => key).filterNot(_.equalsIgnoreCase("NONE"))
     MongoConfig(
       "admin",
       port = dbPort,

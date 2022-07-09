@@ -39,7 +39,7 @@ jobs:
     needs: build_test_container
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         mongodb-port: [ '27017', '4711' ]
         mongodb-username: [ 'root', 'test' ]
