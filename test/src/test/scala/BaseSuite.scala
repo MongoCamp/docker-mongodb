@@ -30,13 +30,13 @@ class BaseSuite extends munit.FunSuite with LazyLogging with DocumentIncludes{
 
   test(s"insert some data to collection `$collectionName`") {
     val dao = databaseProvider.dao(collectionName)
-    val insertResult = dao.insertOne(Map("hello" -> "world")).result()
+    val insertResult = dao.insertOne(Map("hello" -> "world")).result(60)
     assertEquals(insertResult.wasAcknowledged(), true)
   }
 
   test(s"read some data to collection `$collectionName`") {
     val dao = databaseProvider.dao(collectionName)
-    val countResult = dao.count().result()
+    val countResult = dao.count().result(60)
     assertEquals(countResult, 1L)
   }
 
@@ -44,7 +44,7 @@ class BaseSuite extends munit.FunSuite with LazyLogging with DocumentIncludes{
     val replSet : Option[String] = loadEnvValue("mongodb-replica-set", (key: String) => key).filter(_.trim.nonEmpty)
     val isReplSetActive : Boolean = replSet.nonEmpty
     try {
-      val commandResponse = databaseProvider.runCommand(Map("replSetGetStatus" -> 1)).result()
+      val commandResponse = databaseProvider.runCommand(Map("replSetGetStatus" -> 1)).result(60)
       assertEquals(isReplSetActive, true, "isReplSetActive is not true")
       assertEquals(replSet.get, commandResponse.getStringValue("set"))
     } catch {
@@ -55,7 +55,7 @@ class BaseSuite extends munit.FunSuite with LazyLogging with DocumentIncludes{
   }
 
   override def beforeAll(): Unit = {
-    databaseProvider.dao(collectionName).drop().result()
+    databaseProvider.dao(collectionName).drop().result(60)
   }
 
   private def loadEnvValue[E <: Any](systemSettingKey: String, castStringToValue: String => E): Option[E] = {
