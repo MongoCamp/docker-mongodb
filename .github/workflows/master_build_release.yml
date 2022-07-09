@@ -68,7 +68,7 @@ jobs:
           mongodb-username: ${{ matrix.mongodb-username }}
           mongodb-pwd: ${{ matrix.mongodb-pwd }}
           mongodb-replica-set: ${{ matrix.mongodb-replica-set }}
-        run: sbt test
+        run: cd test; sbt test;
 
   push_to_registry:
     name: Push Docker image to Docker Hub
