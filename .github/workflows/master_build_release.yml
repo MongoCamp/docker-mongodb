@@ -12,13 +12,11 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-
       - name: Log in to Docker Hub
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4.0.1
@@ -28,7 +26,6 @@ jobs:
             latest=false
           tags: |
             type=semver,pattern=${{ github.sha }}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.0.0
         with:
@@ -36,14 +33,12 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
   test:
     name: Run Tests
-    runs-on: ubuntu-latest
     needs: build_test_container
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        mongodb-version: [ ${{ github.sha }} ]
         mongodb-port: [ '27017', '4711' ]
         mongodb-username: [ 'root', 'test' ]
         mongodb-pwd: [ 'NONE', 'hello-world' ]
@@ -54,7 +49,7 @@ jobs:
       - name: Start MongoDB ${{ matrix.mongodb-version }}
         uses: MongoCamp/mongodb-github-action@0.5.0
         with:
-          mongodb-version: ${{ matrix.mongodb-version }}
+          mongodb-version: ${{ github.sha }}
           mongodb-port: ${{ matrix.mongodb-port }}
           mongodb-username: ${{ matrix.mongodb-username }}
           mongodb-pwd: ${{ matrix.mongodb-pwd }}

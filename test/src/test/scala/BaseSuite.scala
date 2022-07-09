@@ -41,16 +41,16 @@ class BaseSuite extends munit.FunSuite with LazyLogging with DocumentIncludes{
   }
 
   test(s"check is in replica set") {
-    val replSet : Option[String] = loadEnvValue("mongodb-replica-set", (key: String) => key)
+    val replSet : Option[String] = loadEnvValue("mongodb-replica-set", (key: String) => key).filter(_.trim.nonEmpty)
     val isReplSetActive : Boolean = replSet.nonEmpty
     try {
       val commandResponse = databaseProvider.runCommand(Map("replSetGetStatus" -> 1)).result()
-      assertEquals(isReplSetActive, true)
+      assertEquals(isReplSetActive, true, "isReplSetActive is not true")
       assertEquals(replSet.get, commandResponse.getStringValue("set"))
     } catch {
       case e: MongoCommandException =>
         val noReplication = e.getErrorCode == 76
-        assertEquals(noReplication, !isReplSetActive)
+        assertEquals(noReplication, !isReplSetActive, "noReplication enabled but isReplSetActive is true")
     }
   }
 
