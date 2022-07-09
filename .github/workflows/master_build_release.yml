@@ -60,7 +60,7 @@ jobs:
           distribution: 'corretto'
           java-version: 17
       - name: Run tests
-        with:
+        env:
           mongodb-version: ${{ matrix.mongodb-version }}
           mongodb-port: ${{ matrix.mongodb-port }}
           mongodb-username: ${{ matrix.mongodb-username }}
