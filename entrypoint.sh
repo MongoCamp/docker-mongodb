@@ -109,11 +109,25 @@ if [[ -z ${1} ]]; then
 
      echo "[entrypoint.sh] initiate ReplicaSet"
      mongo admin --port ${MONGO_PORT} --eval "rs.initiate()"
-     echo "[entrypoint.sh] Stop mongod for initiate ReplicaSet"
+     echo "[entrypoint.sh] Stop mongodb for initiate ReplicaSet"
      stop_mongod
   fi
 
   if [[ ${MONGO_ROOT_PWD} != 'NONE' ]]; then
+    if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
+      if [[ ${MONGO_REPLICA_KEY} != 'RANDOM' && ${MONGO_REPLICA_KEY} != '' ]]; then
+        echo "[entrypoint.sh] use given replica key"
+        echo ${MONGO_REPLICA_KEY} > ${MONGO_DATA_DIR}/replica.key
+      else
+        echo "[entrypoint.sh] generate random replica key"
+        openssl rand -base64 741 > ${MONGO_DATA_DIR}/replica.key
+      fi
+      echo "[entrypoint.sh] chmod replica.key"
+      chmod 400 ${MONGO_DATA_DIR}/replica.key
+      echo "[entrypoint.sh] chown replica.key"
+      chown 999:999 ${MONGO_DATA_DIR}/replica.key
+      MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --keyFile ${MONGO_DATA_DIR}/replica.key"
+    fi
     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --auth"
   fi
 
