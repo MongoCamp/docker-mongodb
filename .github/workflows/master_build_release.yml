@@ -49,7 +49,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Start MongoDB ${{ matrix.mongodb-version }}
-        uses: MongoCamp/mongodb-github-action@1.0.0
+        uses: MongoCamp/mongodb-github-action@1.1.0
         with:
           mongodb-version: ${{ github.sha }}
           mongodb-port: ${{ matrix.mongodb-port }}
