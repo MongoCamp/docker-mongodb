@@ -108,7 +108,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Update readme at Dockerhub
-        if: ${{ env.build_latest }} == auto
+        if: ${{ env.build_latest == 'auto' }}
         uses: meeDamian/sync-readme@v1.0.6
         with:
           user: ${{ secrets.DOCKERHUB_USER }}
