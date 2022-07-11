@@ -72,7 +72,15 @@ jobs:
           mongodb-pwd: ${{ matrix.mongodb-pwd }}
           mongodb-replica-set: ${{ matrix.mongodb-replica-set }}
         run: cd test; sbt test;
+
+  cleanup_registry:
+    name: Cleanup Docker Registry
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
       - name: Cleanup Docker Registry
+        if: always()
+        continue-on-error: true
         run: |
           TOKEN=`curl -s -H "Content-Type: application/json" -X POST -H "Content-Type: application/json" -d '{"username":"${{ secrets.DOCKERHUB_USER }}", "password":"${{ secrets.DOCKERHUB_PASSWORD }}"}' "https://hub.docker.com/v2/users/login/" | jq -r .token`
           curl "https://hub.docker.com/v2/repositories/mongocamp/mongodb/tags/${{ github.sha }}/" -X DELETE -H "Authorization: JWT ${TOKEN}"
