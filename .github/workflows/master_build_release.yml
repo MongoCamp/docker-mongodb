@@ -5,6 +5,9 @@ on:
     tags:
       - '*'
 
+env:
+  build_latest: auto
+
 jobs:
   build_test_container:
     name: Build new Test Container
@@ -90,7 +93,7 @@ jobs:
         with:
           images: mongocamp/mongodb
           flavor: |
-            latest=auto
+            latest=${{ env.build_latest }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -105,6 +108,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Update readme at Dockerhub
+        if: ${{ env.build_latest }} == auto
         uses: meeDamian/sync-readme@v1.0.6
         with:
           user: ${{ secrets.DOCKERHUB_USER }}
@@ -114,6 +118,7 @@ jobs:
           description: true
 
       - name: Run Trivy vulnerability scanner
+        if: ${{ env.build_latest == 'auto' }}
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'mongocamp/mongodb:latest'
@@ -122,6 +127,7 @@ jobs:
           ignore-unfixed: true
 
       - name: Upload Trivy scan results to GitHub Security tab
+        if: ${{ env.build_latest == 'auto' }}
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: 'trivy-results.sarif'
