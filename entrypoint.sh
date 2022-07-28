@@ -89,7 +89,8 @@ if [[ -z ${1} ]]; then
 
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
     echo "[entrypoint.sh] Admin User to Database"
-    mongosh --quiet admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
+    mongosh --quiet admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}');" | true
+    mongosh --quiet admin --port ${MONGO_PORT}  --eval "db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
   fi
 
   if [[ ${MONGO_REPLICA_SET_NAME} == 'Standalone0' ]]; then
