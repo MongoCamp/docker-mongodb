@@ -6,7 +6,7 @@ on:
       - '*'
 
 env:
-  build_latest: auto
+  build_latest: false
 
 jobs:
   build_test_container:
@@ -84,7 +84,6 @@ jobs:
         run: |
           TOKEN=`curl -s -H "Content-Type: application/json" -X POST -H "Content-Type: application/json" -d '{"username":"${{ secrets.DOCKERHUB_USER }}", "password":"${{ secrets.DOCKERHUB_PASSWORD }}"}' "https://hub.docker.com/v2/users/login/" | jq -r .token`
           curl "https://hub.docker.com/v2/repositories/mongocamp/mongodb/tags/${{ github.sha }}/" -X DELETE -H "Authorization: JWT ${TOKEN}"
-
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
@@ -110,7 +109,6 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.0.0
         with:
