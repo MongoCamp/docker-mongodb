@@ -36,7 +36,7 @@ stop_mongod() {
   echo "[entrypoint.sh] Stop mongod"
   PID=`pgrep mongod`
   if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
-      mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );'
+      mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' | true
   fi
   mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.shutdownServer();' | true
   while ps -p $PID &>/dev/null; do
@@ -136,11 +136,13 @@ if [[ -z ${1} ]]; then
      echo "[entrypoint.sh] set logpath"
      MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --logpath ${MONGO_LOG_PATH}/mongodb.log"
      echo "[entrypoint.sh] Starting mongod..."
+     echo "[entrypoint.sh] Arguments on mongod startup $MONGO_EXTRA_ARGS"
      mongod --port ${MONGO_PORT} --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --fork 2>&1
      echo "[entrypoint.sh] Start following the mongodb log"
      tail -f "${MONGO_LOG_PATH}/mongodb.log"
   else
      echo "[entrypoint.sh] Starting mongod..."
+     echo "[entrypoint.sh] Arguments on mongod startup $MONGO_EXTRA_ARGS"
      mongod --port ${MONGO_PORT} --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --syslog --fork 2>&1
      PID=`pgrep mongod`
      while ps -p $PID &>/dev/null; do
