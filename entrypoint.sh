@@ -36,9 +36,9 @@ stop_mongod() {
   echo "[entrypoint.sh] Stop mongod"
   PID=`pgrep mongod`
   if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
-      mongo admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );'
+      mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );'
   fi
-  mongo admin --port ${MONGO_PORT} --eval 'db.shutdownServer();'
+  mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.shutdownServer();' | true
   while ps -p $PID &>/dev/null; do
       sleep 1
   done
@@ -84,17 +84,17 @@ if [[ -z ${1} ]]; then
   MONGODB_SHORT=$(cat mongoshort.txt)
 
   echo "[entrypoint.sh] Set Version to ${MONGODB_SHORT}"
-  mongo admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: '"${MONGODB_SHORT}"' } );"
-  mongo admin --port ${MONGO_PORT} --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
+  mongosh --quiet admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: '"${MONGODB_SHORT}"' } );"
+  mongosh --quiet admin --port ${MONGO_PORT} --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
 
   if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
     echo "[entrypoint.sh] Admin User to Database"
-    mongo admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
+    mongosh --quiet admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}'); db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
   fi
 
   if [[ ${MONGO_REPLICA_SET_NAME} == 'Standalone0' ]]; then
     echo "[entrypoint.sh] remove replicaSet definition for 'Standalone0' replicaSet"
-    mongo local --port ${MONGO_PORT}  --eval "db.dropDatabase();"
+    mongosh --quiet local --port ${MONGO_PORT}  --eval "db.dropDatabase();"
   fi
 
   echo "[entrypoint.sh] Stop mongod for insert USER or Update Feature Version ..."
@@ -108,7 +108,7 @@ if [[ -z ${1} ]]; then
      mongod --port ${MONGO_PORT} --fork --syslog --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
 
      echo "[entrypoint.sh] initiate ReplicaSet"
-     mongo admin --port ${MONGO_PORT} --eval "rs.initiate()"
+     mongosh --quiet admin --port ${MONGO_PORT} --eval "rs.initiate()"
      echo "[entrypoint.sh] Stop mongodb for initiate ReplicaSet"
      stop_mongod
   fi
