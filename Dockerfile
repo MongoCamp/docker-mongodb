@@ -15,7 +15,7 @@ ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_REPLICA_SET_NAME=NONE \
     MONGO_REPLICA_KEY=RANDOM
 
-ARG MONGODB_VERSION="5.0.9"
+ARG MONGODB_VERSION="6.0.0"
 
 EXPOSE 27017/tcp
 
@@ -40,7 +40,7 @@ RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | whil
     DEBIAN_FRONTEND=noninteractive apt-get install -y procps; \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y; \
     ln -s /bin/true /bin/systemctl; \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org-server=${MONGODB_VERSION} mongodb-org-shell=${MONGODB_VERSION} mongodb-org-mongos=${MONGODB_VERSION} mongodb-org=${MONGODB_VERSION}; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org=${MONGODB_VERSION} mongodb-org-database=${MONGODB_VERSION} mongodb-org-server=${MONGODB_VERSION} mongodb-mongosh=${MONGODB_VERSION} mongodb-org-mongos=${MONGODB_VERSION} mongodb-org-tools=${MONGODB_VERSION}; \
     DEBIAN_FRONTEND=noninteractive apt-get autoremove -y; \
     rm -rf /etc/mongod.conf; \
     rm -rf /var/lib/apt/lists/*; \
