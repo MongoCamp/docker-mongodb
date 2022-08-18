@@ -132,14 +132,29 @@ if [[ -z ${1} ]]; then
     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --auth"
   fi
 
-  if [[ ${MONGO_LOG_PATH} != 'NONE' && ${MONGO_LOG_PATH} != '' ]]; then
+  if [[ ${MONGO_LOG} != 'NONE' && ${MONGO_LOG} != '' ]]; then
      echo "[entrypoint.sh] set logpath"
-     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --logpath ${MONGO_LOG_PATH}/mongodb.log"
+     if [[ ${MONGO_LOG} == 'stdout' || ${MONGO_LOG} == 'STDOUT' ]]; then
+       echo "[entrypoint.sh] set logpath to stdout"
+       MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --logpath /proc/$$/fd/1"
+
+       chown --dereference mongodb "/proc/$$/fd/1" "/proc/$$/fd/2" || :
+     else
+       echo "[entrypoint.sh] set logpath to ${MONGO_LOG}"
+       MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --logpath ${MONGO_LOG}"
+     fi
      echo "[entrypoint.sh] Starting mongod..."
      echo "[entrypoint.sh] Arguments on mongod startup $MONGO_EXTRA_ARGS"
      mongod --port ${MONGO_PORT} --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --fork 2>&1
-     echo "[entrypoint.sh] Start following the mongodb log"
-     tail -f "${MONGO_LOG_PATH}/mongodb.log"
+     if [[ ${MONGO_LOG} != 'stdout' && ${MONGO_LOG} != 'STDOUT' ]]; then
+       echo "[entrypoint.sh] Start following the mongodb log"
+       tail -f "${MONGO_LOG}"
+     else
+       PID=`pgrep mongod`
+       while ps -p $PID &>/dev/null; do
+         sleep 10
+       done
+     fi
   else
      echo "[entrypoint.sh] Starting mongod..."
      echo "[entrypoint.sh] Arguments on mongod startup $MONGO_EXTRA_ARGS"
