@@ -14,15 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Log in to Docker Hub
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4.0.1
+        uses: docker/metadata-action@v4.3.0
         with:
           images: mongocamp/mongodb
           flavor: |
@@ -30,7 +30,7 @@ jobs:
           tags: |
             type=raw,value=${{ github.sha }}
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3.0.0
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           push: true
@@ -50,9 +50,9 @@ jobs:
         mongodb-replica-set: [ '', 'my-replication' ]
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Start MongoDB ${{ matrix.mongodb-version }}
-        uses: MongoCamp/mongodb-github-action@1.1.0
+        uses: MongoCamp/mongodb-github-action@1.2.0
         with:
           mongodb-version: ${{ github.sha }}
           mongodb-port: ${{ matrix.mongodb-port }}
@@ -90,17 +90,17 @@ jobs:
     needs: test
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4.0.1
+        uses: docker/metadata-action@v4.3.0
         with:
           images: mongocamp/mongodb
           flavor: |
@@ -110,7 +110,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3.0.0
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           push: true
