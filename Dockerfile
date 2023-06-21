@@ -1,4 +1,4 @@
-FROM debian:11-slim
+FROM debian:12.0-slim
 
 MAINTAINER MongoCamp Team <docker-mongodb@mongocamp.dev>
 
