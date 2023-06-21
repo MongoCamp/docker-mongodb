@@ -1,4 +1,4 @@
-FROM debian:12.0-slim
+FROM debian:11-slim
 
 MAINTAINER MongoCamp Team <docker-mongodb@mongocamp.dev>
 
@@ -27,7 +27,7 @@ RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | whil
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --import ./mongoserver.asc; \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --export > ./mongoserver_key.gpg; \
     mv mongoserver_key.gpg /etc/apt/trusted.gpg.d/; \
-    echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/${MONGODB_SHORT} main" | tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_SHORT.list;  \
+    echo "deb http://repo.mongodb.org/apt/debian bullseye/mongodb-org/${MONGODB_SHORT} main" | tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_SHORT.list;  \
     grep -A 1 'Commandline: apt-get install -y curl gnupg' /var/log/apt/history.log | tail -1 >/tmp/packages.txt;  \
     sed -i 's/Install://' /tmp/packages.txt;  \
     tr ',' '\n' < /tmp/packages.txt | sed '/automatic)/d' | awk '{ print $1}' > /tmp/final.packages.txt;  \
