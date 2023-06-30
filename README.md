@@ -1,4 +1,4 @@
-# MongoCamp/mongodb:6.0.6
+# mongocamp/mongodb:6.0.7
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/mongocamp/mongodb) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/mongocamp/mongodb) ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/mongocamp/mongodb) 
 
