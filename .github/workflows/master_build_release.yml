@@ -128,18 +128,3 @@ jobs:
           slug: mongocamp/mongodb
           readme: README.md
           description: true
-
-      - name: Run Trivy vulnerability scanner
-        if: ${{ env.build_latest == 'auto' }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'mongocamp/mongodb:latest'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          ignore-unfixed: true
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        if: ${{ env.build_latest == 'auto' }}
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
