@@ -33,7 +33,7 @@ create_data_dir() {
 }
 
 stop_mongod() {
-  echo "[entrypoint.sh] Stop mongod"
+  echo "[entrypoint.sh] Stop MongoDb"
   PID=`pgrep mongod`
   if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
       mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' | true
@@ -47,7 +47,6 @@ stop_mongod() {
 
 create_data_dir
 
-# allow arguments to be passed to mongod
 if [[ ${1:0:1} = '-' ]]; then
   EXTRA_ARGS="$@"
   set --
@@ -75,13 +74,13 @@ fi
 echo "[entrypoint.sh] Upgrade MongoDb stored files if needed"
 mongod --port ${MONGO_PORT} --upgrade --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
 
-echo "[entrypoint.sh] Starting mongod for upgrade Informations"
+echo "[entrypoint.sh] Starting MongoDb for upgrade Information"
 mongod --port ${MONGO_PORT} --fork --syslog --dbpath ${MONGO_DATA_DIR} 2>&1
 
 MONGODB_SHORT=$(cat mongoshort.txt)
 
 echo "[entrypoint.sh] Set Version to ${MONGODB_SHORT}"
-mongosh --quiet admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: '"${MONGODB_SHORT}"' } );"
+mongosh --quiet admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: '"${MONGODB_SHORT}"', confirm: true } );"
 mongosh --quiet admin --port ${MONGO_PORT} --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
 
 if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
@@ -95,14 +94,14 @@ if [[ ${MONGO_REPLICA_SET_NAME} == 'Standalone0' ]]; then
   mongosh --quiet local --port ${MONGO_PORT}  --eval "db.dropDatabase();"
 fi
 
-echo "[entrypoint.sh] Stop mongod for insert USER or Update Feature Version ..."
+echo "[entrypoint.sh] Stop MongoDb for insert USER or Update Feature Version ..."
 stop_mongod
 
 if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
    echo "[entrypoint.sh] use ReplicaSet definition"
    MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --replSet ${MONGO_REPLICA_SET_NAME}"
 
-   echo "[entrypoint.sh] Starting mongod for checking and initiate ReplicaSet"
+   echo "[entrypoint.sh] Starting MongoDb for checking and initiate ReplicaSet"
    mongod --port ${MONGO_PORT} --fork --syslog --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
 
    echo "[entrypoint.sh] initiate ReplicaSet"
