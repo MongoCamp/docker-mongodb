@@ -2,6 +2,11 @@ name: Check Security of  latest image on Docker Hub
 on:
   schedule:
     - cron: '0 0 * * 0'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Publish Docker image"]
+    types:
+      - completed
 
 jobs:
   vulnerability_scanner:
