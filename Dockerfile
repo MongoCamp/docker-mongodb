@@ -1,4 +1,4 @@
-FROM debian:11-slim
+FROM ubuntu:jammy
 
 MAINTAINER MongoCamp Team <docker-mongodb@mongocamp.dev>
 
@@ -19,7 +19,7 @@ ARG MONGODB_VERSION="7.0.1"
 
 EXPOSE 27017/tcp
 
-RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | while IFS=. read a b c; do echo "$a.$b"; done;); \ 
+RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | while IFS=. read a b c; do echo "$a.$b"; done;); \
     echo $MONGODB_SHORT > mongoshort.txt; \
     apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg; \
@@ -27,7 +27,7 @@ RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | whil
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --import ./mongoserver.asc; \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --export > ./mongoserver_key.gpg; \
     mv mongoserver_key.gpg /etc/apt/trusted.gpg.d/; \
-    echo "deb http://repo.mongodb.org/apt/debian bullseye/mongodb-org/${MONGODB_SHORT} main" | tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_SHORT.list;  \
+    echo "deb http://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/${MONGODB_SHORT} multiverse" | tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_SHORT.list;  \
     grep -A 1 'Commandline: apt-get install -y curl gnupg' /var/log/apt/history.log | tail -1 >/tmp/packages.txt;  \
     sed -i 's/Install://' /tmp/packages.txt;  \
     tr ',' '\n' < /tmp/packages.txt | sed '/automatic)/d' | awk '{ print $1}' > /tmp/final.packages.txt;  \
