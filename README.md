@@ -1,4 +1,4 @@
-# mongocamp/mongodb:6.0.10
+# mongocamp/mongodb:6.0.11
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/mongocamp/mongodb) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/mongocamp/mongodb) ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/mongocamp/mongodb) 
 
@@ -36,7 +36,7 @@ Automated builds of the image are available on
 [Dockerhub](https://hub.docker.com/r/mongocamp/mongodb/)
 
 ```bash
-docker pull mongocamp/mongodb:6.0.10
+docker pull mongocamp/mongodb:6.0.11
 ```
 
 Alternatively you can build the image yourself.
@@ -50,7 +50,7 @@ docker build . --tag 'mongocamp/mongodb:dev';
 Start MongoDB using:
 
 ```bash
-docker run --publish 27017:27017 mongocamp/mongodb:6.0.10
+docker run --publish 27017:27017 mongocamp/mongodb:6.0.11
 ```
 
 *Alternatively, you can use the sample [docker-compose.yml](docker-compose.yml) file to start the container using [Docker Compose](https://docs.docker.com/compose/)*
