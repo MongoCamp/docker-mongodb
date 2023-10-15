@@ -1,4 +1,4 @@
-#mongocamp/mongodb:7.0.2
+# mongocamp/mongodb:7.0.2
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/mongocamp/mongodb) ![Docker Image Size with architecture (latest by date/latest semver)](https://img.shields.io/docker/image-size/mongocamp/mongodb?sort=semver) ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/mongocamp/mongodb?sort=semver)
 
