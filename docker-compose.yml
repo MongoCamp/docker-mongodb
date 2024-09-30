@@ -1,7 +1,7 @@
 version: '2'
 services:
   MongoDB:
-    image: mongocamp/mongodb:6.0.17
+    image: mongocamp/mongodb:6.0.18
     ports:
       - "27017:27017"
     volumes:
