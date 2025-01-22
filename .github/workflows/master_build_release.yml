@@ -59,18 +59,18 @@ jobs:
           mongodb-username: ${{ matrix.mongodb-username }}
           mongodb-pwd: ${{ matrix.mongodb-pwd }}
           mongodb-replica-set: ${{ matrix.mongodb-replica-set }}
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3.3.0
+      - name: Set up JDK
+        uses: coursier/setup-action@main
         with:
-          distribution: 'corretto'
-          java-version: 17
+          jvm: corretto:21
+          apps: sbt scala scalac
       - name: Run tests
         env:
-          mongodb-version: ${{ matrix.mongodb-version }}
-          mongodb-port: ${{ matrix.mongodb-port }}
-          mongodb-username: ${{ matrix.mongodb-username }}
-          mongodb-pwd: ${{ matrix.mongodb-pwd }}
-          mongodb-replica-set: ${{ matrix.mongodb-replica-set }}
+          MONGODB_VERSION: ${{ matrix.mongodb-version }}
+          MONGODB_PORT: ${{ matrix.mongodb-port }}
+          MONGODB_USERNAME: ${{ matrix.mongodb-username }}
+          MONGODB_PWD: ${{ matrix.mongodb-pwd }}
+          MONGODB_REPLICA_SET: ${{ matrix.mongodb-replica-set }}
         run: cd test; sbt test;
 
   cleanup_registry:
