@@ -1,6 +1,6 @@
 FROM ubuntu:jammy
 
-MAINTAINER MongoCamp Team <docker-mongodb@mongocamp.dev>
+LABEL org.opencontainers.image.authors="MongoCamp Team <docker-mongodb@mongocamp.dev>"
 
 ENV MONGO_DATA_DIR=/var/lib/mongodb \
     MONGO_EXTRA_ARGS="" \

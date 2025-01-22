@@ -6,13 +6,27 @@ import dev.mongocamp.driver.mongodb.database.{DatabaseProvider, MongoConfig}
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.MongoCommandException
+import scala.jdk.CollectionConverters._
 
 class BaseSuite extends munit.FunSuite with LazyLogging with DocumentIncludes{
 
   lazy val mongoConfig: MongoConfig = {
-    val dbPort = loadEnvValue("mongodb-port", (key: String) => key.toInt).getOrElse(MongoConfig.DefaultPort)
-    val dbUser = loadEnvValue("mongodb-username", (key: String) => key)
-    val dbPassword = loadEnvValue("mongodb-pwd", (key: String) => key).filterNot(_.equalsIgnoreCase("NONE"))
+    val dbPort = loadEnvValue("MONGODB_PORT", (key: String) => key.toInt).getOrElse(MongoConfig.DefaultPort)
+    val dbUser = loadEnvValue("MONGODB_USERNAME", (key: String) => key)
+    val dbPassword = loadEnvValue("MONGODB_PWD", (key: String) => key).filterNot(_.equalsIgnoreCase("NONE"))
+    val mongodbReplSet = loadEnvValue("MONGODB_REPLICA_SET", (key: String) => key).filter(_.trim.nonEmpty)
+    System.getenv().asScala.foreach { case (key, value) =>
+      println(s"ENV: [$key] $value")
+    }
+    System.getProperties.asScala.foreach { case (key, value) =>
+      println(s"Properties: [$key] $value")
+    }
+    println("***************************************************")
+    println(s"Port:       $dbPort")
+    println(s"User:       $dbUser")
+    println(s"Password:   $dbPassword")
+    println(s"ReplicaSet: $mongodbReplSet")
+    println("***************************************************")
     MongoConfig(
       "admin",
       port = dbPort,
@@ -41,7 +55,7 @@ class BaseSuite extends munit.FunSuite with LazyLogging with DocumentIncludes{
   }
 
   test(s"check is in replica set") {
-    val replSet : Option[String] = loadEnvValue("mongodb-replica-set", (key: String) => key).filter(_.trim.nonEmpty)
+    val replSet : Option[String] = loadEnvValue("MONGODB_REPLICA_SET", (key: String) => key).filter(_.trim.nonEmpty)
     val isReplSetActive : Boolean = replSet.nonEmpty
     try {
       val commandResponse = databaseProvider.runCommand(Map("replSetGetStatus" -> 1)).result(60)
@@ -73,4 +87,5 @@ class BaseSuite extends munit.FunSuite with LazyLogging with DocumentIncludes{
       }
     }
   }
+
 }
