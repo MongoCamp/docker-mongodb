@@ -91,7 +91,7 @@ jobs:
     needs: test
     steps:
       - name: Check out the repo
-        uses: actions/checkout@min
+        uses: actions/checkout@main
 
       - name: Log in to Docker Hub
         uses: docker/login-action@master
