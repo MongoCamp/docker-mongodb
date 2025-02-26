@@ -22,7 +22,7 @@ EXPOSE 27017/tcp
 RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | while IFS=. read a b c; do echo "$a.$b"; done;); \
     echo $MONGODB_SHORT > mongoshort.txt; \
     apt-get update; \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg libc-bin; \
     curl -fsSL https://pgp.mongodb.com/server-${MONGODB_SHORT}.asc  -o mongoserver.asc;  \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --import ./mongoserver.asc; \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --export > ./mongoserver_key.gpg; \
