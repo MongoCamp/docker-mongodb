@@ -16,13 +16,13 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2.1.0
+        uses: docker/login-action@master
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4.3.0
+        uses: docker/metadata-action@master
         with:
           images: mongocamp/mongodb
           flavor: |
@@ -30,7 +30,7 @@ jobs:
           tags: |
             type=raw,value=${{ github.sha }}
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4.0.0
+        uses: docker/build-push-action@master
         with:
           context: .
           push: true
@@ -50,9 +50,9 @@ jobs:
         mongodb-replica-set: [ '', 'my-replication' ]
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@main
       - name: Start MongoDB ${{ matrix.mongodb-version }}
-        uses: MongoCamp/mongodb-github-action@1.2.0
+        uses: MongoCamp/mongodb-github-action@main
         with:
           mongodb-version: ${{ github.sha }}
           mongodb-port: ${{ matrix.mongodb-port }}
@@ -91,23 +91,23 @@ jobs:
     needs: test
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@min
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2.1.0
+        uses: docker/login-action@master
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@master
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@master
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4.3.0
+        uses: docker/metadata-action@master
         with:
           images: mongocamp/mongodb
           flavor: |
@@ -118,7 +118,7 @@ jobs:
             type=semver,pattern={{major}}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4.0.0
+        uses: docker/build-push-action@master
         with:
           context: .
           platforms: linux/amd64,linux/arm64/v8
@@ -128,7 +128,7 @@ jobs:
 
       - name: Update readme at Dockerhub
         if: ${{ env.build_latest == 'auto' }}
-        uses: meeDamian/sync-readme@v1.0.6
+        uses: meeDamian/sync-readme@master
         with:
           user: ${{ secrets.DOCKERHUB_USER }}
           pass: ${{ secrets.DOCKERHUB_PASSWORD }}
