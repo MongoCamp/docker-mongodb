@@ -6,7 +6,7 @@ on:
       - '*'
 
 env:
-  build_latest: auto
+  build_latest: false
 
 jobs:
   build_test_container:
