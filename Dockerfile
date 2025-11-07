@@ -1,4 +1,4 @@
-FROM ubuntu:jammy
+FROM ubuntu:noble
 
 LABEL org.opencontainers.image.authors="MongoCamp Team <docker-mongodb@mongocamp.dev>"
 
@@ -23,11 +23,13 @@ RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | whil
     echo $MONGODB_SHORT > mongoshort.txt; \
     apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg libc-bin; \
-    curl -fsSL https://pgp.mongodb.com/server-${MONGODB_SHORT}.asc  -o mongoserver.asc;  \
+#  MongoDB 8.2 has no own asc  curl -fsSL https://pgp.mongodb.com/server-${MONGODB_SHORT}.asc  -o mongoserver.asc;  \
+# https://www.mongodb.com/docs/manual/administration/install-community/?operating-system=linux&linux-distribution=ubuntu&linux-package=default&search-linux=with-search-linux
+    curl -fsSL https://pgp.mongodb.com/server-8.0.asc  -o mongoserver.asc;  \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --import ./mongoserver.asc; \
     gpg --no-default-keyring --keyring ./mongo_key_temp.gpg --export > ./mongoserver_key.gpg; \
     mv mongoserver_key.gpg /etc/apt/trusted.gpg.d/; \
-    echo "deb http://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/${MONGODB_SHORT} multiverse" | tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_SHORT.list;  \
+    echo "deb http://repo.mongodb.org/apt/ubuntu noble/mongodb-org/${MONGODB_SHORT} multiverse" | tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_SHORT.list;  \
     grep -A 1 'Commandline: apt-get install -y curl gnupg' /var/log/apt/history.log | tail -1 >/tmp/packages.txt;  \
     sed -i 's/Install://' /tmp/packages.txt;  \
     tr ',' '\n' < /tmp/packages.txt | sed '/automatic)/d' | awk '{ print $1}' > /tmp/final.packages.txt;  \
