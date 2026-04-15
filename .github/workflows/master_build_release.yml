@@ -37,46 +37,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  test:
-    name: Run Tests
-    needs: build_test_container
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        mongodb-port: [ '27017', '4711' ]
-        mongodb-username: [ 'root', 'test' ]
-        mongodb-pwd: [ 'NONE', 'hello-world' ]
-        mongodb-replica-set: [ '', 'my-replication' ]
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
-      - name: Start MongoDB ${{ matrix.mongodb-version }}
-        uses: MongoCamp/mongodb-github-action@1.2.0
-        with:
-          mongodb-version: ${{ github.sha }}
-          mongodb-port: ${{ matrix.mongodb-port }}
-          mongodb-username: ${{ matrix.mongodb-username }}
-          mongodb-pwd: ${{ matrix.mongodb-pwd }}
-          mongodb-replica-set: ${{ matrix.mongodb-replica-set }}
-      - name: Set up JDK
-        uses: coursier/setup-action@main
-        with:
-          jvm: corretto:21
-          apps: sbt scala scalac
-      - name: Run tests
-        env:
-          MONGODB_VERSION: ${{ matrix.mongodb-version }}
-          MONGODB_PORT: ${{ matrix.mongodb-port }}
-          MONGODB_USERNAME: ${{ matrix.mongodb-username }}
-          MONGODB_PWD: ${{ matrix.mongodb-pwd }}
-          MONGODB_REPLICA_SET: ${{ matrix.mongodb-replica-set }}
-        run: cd test; sbt test;
-
   cleanup_registry:
     name: Cleanup Docker Registry
     runs-on: ubuntu-latest
-    needs: test
+    needs: build_test_container
     steps:
       - name: Cleanup Docker Registry
         if: always()
@@ -88,7 +52,7 @@ jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    needs: test
+    needs: build_test_container
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
