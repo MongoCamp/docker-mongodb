@@ -34,12 +34,21 @@ create_data_dir() {
 
 stop_mongod() {
   echo "[entrypoint.sh] Stop MongoDb"
-  PID=`pgrep mongod`
-  if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
-      mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' || true
+  PID=$(pgrep mongod)
+  if [ -z "$PID" ]; then
+    echo "[entrypoint.sh] No mongod process found"
+    return
   fi
-  mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.shutdownServer();' || true
-  while ps -p $PID &>/dev/null; do
+
+  if grep -qa -- "--replSet" "/proc/$PID/cmdline"; then
+    echo "[entrypoint.sh] Stop MongoDb with replSet"
+    mongosh --quiet admin --username "${MONGO_ROOT_USERNAME}" --password "${MONGO_ROOT_PWD}" --port "${MONGO_PORT}" --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' || true
+  else
+    echo "[entrypoint.sh] Stop MongoDb"
+  fi
+  
+  mongosh --quiet admin --username "${MONGO_ROOT_USERNAME}" --password "${MONGO_ROOT_PWD}" --port "${MONGO_PORT}" --eval 'db.shutdownServer();' || true
+  while ps -p "${PID}" &>/dev/null; do
       sleep 1
   done
   echo "[entrypoint.sh] MongoDB stopped"
