@@ -77,7 +77,7 @@ MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} ${MONGO_BINDING}"
 
 if [[ ${MONGO_MAX_CONNECTIONS} != 'NONE' ]]; then
   echo "[entrypoint.sh] Set Max Connections to <${MONGO_MAX_CONNECTIONS}>"
-  MONGO_MAX_CONNECTIONS="${MONGO_EXTRA_ARGS} --maxConns ${MONGO_MAX_CONNECTIONS}"
+  MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --maxConns ${MONGO_MAX_CONNECTIONS}"
 fi
 
 echo "[entrypoint.sh] Upgrade MongoDb stored files if needed"
