@@ -49,6 +49,8 @@ setup_mongosh_home() {
 }
 
 stop_mongod() {
+  local auth_args=()
+
   echo "[entrypoint.sh] Stop MongoDb"
   PID=$(pgrep mongod)
   if [ -z "$PID" ]; then
@@ -56,14 +58,18 @@ stop_mongod() {
     return
   fi
 
+  if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
+    auth_args+=(--username "${MONGO_ROOT_USERNAME}" --password "${MONGO_ROOT_PWD}")
+  fi
+
   if grep -qa -- "--replSet" "/proc/$PID/cmdline"; then
     echo "[entrypoint.sh] Stop MongoDb with replSet"
-    mongosh --quiet --norc admin --username "${MONGO_ROOT_USERNAME}" --password "${MONGO_ROOT_PWD}" --port "${MONGO_PORT}" --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' || true
+    mongosh --quiet --norc admin "${auth_args[@]}" --port "${MONGO_PORT}" --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' || true
   else
     echo "[entrypoint.sh] Stop MongoDb"
   fi
   
-  mongosh --quiet --norc admin --username "${MONGO_ROOT_USERNAME}" --password "${MONGO_ROOT_PWD}" --port "${MONGO_PORT}" --eval 'db.shutdownServer();' || true
+  mongosh --quiet --norc admin "${auth_args[@]}" --port "${MONGO_PORT}" --eval 'db.shutdownServer();' || true
   while ps -p "${PID}" &>/dev/null; do
       sleep 1
   done
