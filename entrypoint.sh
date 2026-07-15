@@ -74,7 +74,8 @@ if [[ ${MONGO_MAX_CONNECTIONS} != 'NONE' ]]; then
 fi
 
 echo "[entrypoint.sh] Upgrade MongoDb stored files if needed"
-mongod --port "${MONGO_PORT}" --upgrade --dbpath "${MONGO_DATA_DIR}" "${MONGO_EXTRA_ARGS}"
+# shellcheck disable=SC2086
+mongod --port "${MONGO_PORT}" --upgrade --dbpath "${MONGO_DATA_DIR}" ${MONGO_EXTRA_ARGS}
 
 echo "[entrypoint.sh] Starting MongoDb for upgrade Information"
 mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" 2>&1
@@ -104,7 +105,8 @@ if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]];
   MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --replSet ${MONGO_REPLICA_SET_NAME}"
 
   echo "[entrypoint.sh] Starting MongoDb for checking and initiate ReplicaSet"
-  mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" "${MONGO_EXTRA_ARGS}" 2>&1
+  # shellcheck disable=SC2086
+  mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" ${MONGO_EXTRA_ARGS} 2>&1
 
   if mongosh --quiet admin --port "${MONGO_PORT}" --eval "rs.status().ok" >/dev/null 2>&1; then
     echo "[entrypoint.sh] ReplicaSet already initialized"
