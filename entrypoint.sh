@@ -107,16 +107,20 @@ echo "[entrypoint.sh] Stop MongoDb for insert USER or Update Feature Version ...
 stop_mongod
 
 if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
-   echo "[entrypoint.sh] use ReplicaSet definition"
-   MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --replSet ${MONGO_REPLICA_SET_NAME}"
+  echo "[entrypoint.sh] use ReplicaSet definition"
+  MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --replSet ${MONGO_REPLICA_SET_NAME}"
 
-   echo "[entrypoint.sh] Starting MongoDb for checking and initiate ReplicaSet"
-   mongod --port ${MONGO_PORT} --fork --syslog --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} 2>&1
+  echo "[entrypoint.sh] Starting MongoDb for checking and initiate ReplicaSet"
+  mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" "${MONGO_EXTRA_ARGS}" 2>&1
 
-   echo "[entrypoint.sh] initiate ReplicaSet"
-   mongosh --quiet admin --port ${MONGO_PORT} --eval "rs.initiate()"
-   echo "[entrypoint.sh] Stop mongodb for initiate ReplicaSet"
-   stop_mongod
+  if mongosh --quiet admin --port "${MONGO_PORT}" --eval "rs.status().ok" >/dev/null 2>&1; then
+    echo "[entrypoint.sh] ReplicaSet already initialized"
+  else
+    echo "[entrypoint.sh] initiate ReplicaSet"
+    mongosh --quiet admin --port "${MONGO_PORT}" --eval "rs.initiate()"
+  fi
+  echo "[entrypoint.sh] Stop mongodb for initiate ReplicaSet"
+  stop_mongod
 fi
 
 if [[ ${MONGO_ROOT_PWD} != 'NONE' ]]; then
