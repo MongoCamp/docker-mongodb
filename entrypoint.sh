@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 function setup_signals {
   echo "[entrypoint.sh] Setup shutdown signals"
@@ -36,9 +36,9 @@ stop_mongod() {
   echo "[entrypoint.sh] Stop MongoDb"
   PID=`pgrep mongod`
   if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
-      mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' | true
+      mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' || true
   fi
-  mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.shutdownServer();' | true
+  mongosh --quiet admin --port ${MONGO_PORT} --eval 'db.shutdownServer();' || true
   while ps -p $PID &>/dev/null; do
       sleep 1
   done
@@ -85,7 +85,7 @@ mongosh --quiet admin --port ${MONGO_PORT} --eval "db.adminCommand( { getParamet
 
 if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
   echo "[entrypoint.sh] Admin User to Database"
-  mongosh --quiet admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}');" | true
+  mongosh --quiet admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}');" || true
   mongosh --quiet admin --port ${MONGO_PORT}  --eval "db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
 fi
 
@@ -160,4 +160,3 @@ else
       sleep 10
    done
 fi
-
