@@ -28,8 +28,8 @@ setup_signals "$1" "handle_signal" SIGINT SIGTERM SIGHUP
 
 create_data_dir() {
   echo "[entrypoint.sh] Create Mongo Data Dir <${MONGO_DATA_DIR}>"
-  mkdir -p ${MONGO_DATA_DIR}
-  chmod -R 0755 ${MONGO_DATA_DIR}
+  mkdir -p "${MONGO_DATA_DIR}"
+  chmod -R 0755 "${MONGO_DATA_DIR}"
 }
 
 stop_mongod() {
@@ -81,26 +81,26 @@ if [[ ${MONGO_MAX_CONNECTIONS} != 'NONE' ]]; then
 fi
 
 echo "[entrypoint.sh] Upgrade MongoDb stored files if needed"
-mongod --port ${MONGO_PORT} --upgrade --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS}
+mongod --port "${MONGO_PORT}" --upgrade --dbpath "${MONGO_DATA_DIR}" "${MONGO_EXTRA_ARGS}"
 
 echo "[entrypoint.sh] Starting MongoDb for upgrade Information"
-mongod --port ${MONGO_PORT} --fork --syslog --dbpath ${MONGO_DATA_DIR} 2>&1
+mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" 2>&1
 
 MONGODB_SHORT=$(cat mongoshort.txt)
 
 echo "[entrypoint.sh] Set Version to ${MONGODB_SHORT}"
-mongosh --quiet admin --port ${MONGO_PORT} --eval "db.adminCommand( { setFeatureCompatibilityVersion: '"${MONGODB_SHORT}"', confirm: true } );"
-mongosh --quiet admin --port ${MONGO_PORT} --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
+mongosh --quiet admin --port "${MONGO_PORT}" --eval "db.adminCommand( { setFeatureCompatibilityVersion: '${MONGODB_SHORT}', confirm: true } );"
+mongosh --quiet admin --port "${MONGO_PORT}" --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
 
 if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
   echo "[entrypoint.sh] Admin User to Database"
-  mongosh --quiet admin --port ${MONGO_PORT}  --eval "db.dropUser('${MONGO_ROOT_USERNAME}');" || true
-  mongosh --quiet admin --port ${MONGO_PORT}  --eval "db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
+  mongosh --quiet admin --port "${MONGO_PORT}"  --eval "db.dropUser('${MONGO_ROOT_USERNAME}');" || true
+  mongosh --quiet admin --port "${MONGO_PORT}"  --eval "db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
 fi
 
 if [[ ${MONGO_REPLICA_SET_NAME} == 'Standalone0' ]]; then
   echo "[entrypoint.sh] remove replicaSet definition for 'Standalone0' replicaSet"
-  mongosh --quiet local --port ${MONGO_PORT}  --eval "db.dropDatabase();"
+  mongosh --quiet local --port "${MONGO_PORT}"  --eval "db.dropDatabase();"
 fi
 
 echo "[entrypoint.sh] Stop MongoDb for insert USER or Update Feature Version ..."
@@ -127,15 +127,15 @@ if [[ ${MONGO_ROOT_PWD} != 'NONE' ]]; then
   if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
     if [[ ${MONGO_REPLICA_KEY} != 'RANDOM' && ${MONGO_REPLICA_KEY} != '' ]]; then
       echo "[entrypoint.sh] use given replica key"
-      echo ${MONGO_REPLICA_KEY} > ${MONGO_DATA_DIR}/replica.key
+      echo "${MONGO_REPLICA_KEY}" > "${MONGO_DATA_DIR}/replica.key"
     else
       echo "[entrypoint.sh] generate random replica key"
-      openssl rand -base64 741 > ${MONGO_DATA_DIR}/replica.key
+      openssl rand -base64 741 > "${MONGO_DATA_DIR}/replica.key"
     fi
     echo "[entrypoint.sh] chmod replica.key"
-    chmod 400 ${MONGO_DATA_DIR}/replica.key
+    chmod 400 "${MONGO_DATA_DIR}/replica.key"
     echo "[entrypoint.sh] chown replica.key"
-    chown 999:999 ${MONGO_DATA_DIR}/replica.key
+    chown 999:999 "${MONGO_DATA_DIR}/replica.key"
     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --keyFile ${MONGO_DATA_DIR}/replica.key"
   fi
   MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --auth"
@@ -154,22 +154,24 @@ if [[ ${MONGO_LOG} != 'NONE' && ${MONGO_LOG} != '' ]]; then
    fi
    echo "[entrypoint.sh] Starting mongod..."
    echo "[entrypoint.sh] Arguments on mongod startup $MONGO_EXTRA_ARGS"
-   mongod --port ${MONGO_PORT} --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --fork 2>&1
+   # shellcheck disable=SC2086
+   mongod --port "${MONGO_PORT}" --dbpath "${MONGO_DATA_DIR}" ${MONGO_EXTRA_ARGS} --fork 2>&1
    if [[ ${MONGO_LOG} != 'stdout' && ${MONGO_LOG} != 'STDOUT' ]]; then
      echo "[entrypoint.sh] Start following the mongodb log"
      tail -f "${MONGO_LOG}"
    else
-     PID=`pgrep mongod`
-     while ps -p $PID &>/dev/null; do
+     PID=$(pgrep mongod)
+     while ps -p "${PID}" &>/dev/null; do
        sleep 10
      done
    fi
 else
    echo "[entrypoint.sh] Starting mongod..."
    echo "[entrypoint.sh] Arguments on mongod startup $MONGO_EXTRA_ARGS"
-   mongod --port ${MONGO_PORT} --dbpath ${MONGO_DATA_DIR} ${MONGO_EXTRA_ARGS} --syslog --fork 2>&1
-   PID=`pgrep mongod`
-   while ps -p $PID &>/dev/null; do
+   # shellcheck disable=SC2086
+   mongod --port "${MONGO_PORT}" --dbpath "${MONGO_DATA_DIR}" ${MONGO_EXTRA_ARGS} --syslog --fork 2>&1
+   PID=$(pgrep mongod)
+   while ps -p "${PID}" &>/dev/null; do
       sleep 10
    done
 fi
