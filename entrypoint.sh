@@ -6,6 +6,7 @@ function setup_signals {
   cid="$1"; shift
   handler="$1"; shift
   for sig; do
+    # shellcheck disable=SC2064
     trap "$handler '$cid' '$sig'" "$sig"
   done
 }
