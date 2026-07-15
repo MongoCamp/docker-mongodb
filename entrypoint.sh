@@ -167,8 +167,6 @@ if [[ ${MONGO_ROOT_PWD} != 'NONE' ]]; then
     fi
     echo "[entrypoint.sh] chmod replica.key"
     chmod 400 "${MONGO_DATA_DIR}/replica.key"
-    echo "[entrypoint.sh] chown replica.key"
-    chown mongodb:mongodb "${MONGO_DATA_DIR}/replica.key"
     mongo_extra_args+=(--keyFile "${MONGO_DATA_DIR}/replica.key")
   fi
   mongo_extra_args+=(--auth)
