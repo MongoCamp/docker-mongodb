@@ -56,14 +56,6 @@ stop_mongod() {
 
 create_data_dir
 
-if [[ ${1:0:1} = '-' ]]; then
-  EXTRA_ARGS="$@"
-  set --
-elif [[ ${1} == mongod || ${1} == $(which mongod) ]]; then
-  EXTRA_ARGS="${@:2}"
-  set --
-fi
-
 if [[ ${MONGO_WIREDTIGER_CACHE_SIZE_GB} != 'NONE' ]]; then
    echo "[entrypoint.sh] Added wiredTigerMaxMemory to ${MONGO_WIREDTIGER_CACHE_SIZE_GB}"
    MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --wiredTigerCacheSizeGB ${MONGO_WIREDTIGER_CACHE_SIZE_GB}"
