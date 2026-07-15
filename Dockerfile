@@ -54,6 +54,8 @@ RUN MONGODB_SHORT=${MONGODB_VERSION}; MONGODB_SHORT=$(echo $MONGODB_SHORT | whil
 COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
 
+USER mongodb
+
 VOLUME ["${MONGO_DATA_DIR}"]
 ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["/usr/bin/mongod"]
