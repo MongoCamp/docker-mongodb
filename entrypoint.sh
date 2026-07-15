@@ -57,25 +57,38 @@ stop_mongod() {
 
 create_data_dir
 
+declare -a mongo_extra_args=()
+
+if [[ -n "${MONGO_EXTRA_ARGS:-}" ]]; then
+  read -r -a initial_extra_args <<< "${MONGO_EXTRA_ARGS}"
+  mongo_extra_args+=("${initial_extra_args[@]}")
+fi
+
+print_mongod_args() {
+  printf '[entrypoint.sh] Arguments on mongod startup'
+  printf ' %q' "${mongo_extra_args[@]}"
+  printf '\n'
+}
+
 if [[ ${MONGO_WIREDTIGER_CACHE_SIZE_GB} != 'NONE' ]]; then
    echo "[entrypoint.sh] Added wiredTigerMaxMemory to ${MONGO_WIREDTIGER_CACHE_SIZE_GB}"
-   MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --wiredTigerCacheSizeGB ${MONGO_WIREDTIGER_CACHE_SIZE_GB}"
+   mongo_extra_args+=(--wiredTigerCacheSizeGB "${MONGO_WIREDTIGER_CACHE_SIZE_GB}")
 fi
 
 echo "[entrypoint.sh] Set StorageEngine to <${MONGO_STORAGEENGINE}>"
-MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --storageEngine ${MONGO_STORAGEENGINE}"
+mongo_extra_args+=(--storageEngine "${MONGO_STORAGEENGINE}")
 
 echo "[entrypoint.sh] Set IpBinding to <${MONGO_BINDING}>"
-MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} ${MONGO_BINDING}"
+read -r -a binding_args <<< "${MONGO_BINDING}"
+mongo_extra_args+=("${binding_args[@]}")
 
 if [[ ${MONGO_MAX_CONNECTIONS} != 'NONE' ]]; then
   echo "[entrypoint.sh] Set Max Connections to <${MONGO_MAX_CONNECTIONS}>"
-  MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --maxConns ${MONGO_MAX_CONNECTIONS}"
+  mongo_extra_args+=(--maxConns "${MONGO_MAX_CONNECTIONS}")
 fi
 
 echo "[entrypoint.sh] Upgrade MongoDb stored files if needed"
-# shellcheck disable=SC2086
-mongod --port "${MONGO_PORT}" --upgrade --dbpath "${MONGO_DATA_DIR}" ${MONGO_EXTRA_ARGS}
+mongod --port "${MONGO_PORT}" --upgrade --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}"
 
 echo "[entrypoint.sh] Starting MongoDb for upgrade Information"
 mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" 2>&1
@@ -102,11 +115,10 @@ stop_mongod
 
 if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
   echo "[entrypoint.sh] use ReplicaSet definition"
-  MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --replSet ${MONGO_REPLICA_SET_NAME}"
+  mongo_extra_args+=(--replSet "${MONGO_REPLICA_SET_NAME}")
 
   echo "[entrypoint.sh] Starting MongoDb for checking and initiate ReplicaSet"
-  # shellcheck disable=SC2086
-  mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" ${MONGO_EXTRA_ARGS} 2>&1
+  mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" 2>&1
 
   if mongosh --quiet admin --port "${MONGO_PORT}" --eval "rs.status().ok" >/dev/null 2>&1; then
     echo "[entrypoint.sh] ReplicaSet already initialized"
@@ -131,26 +143,25 @@ if [[ ${MONGO_ROOT_PWD} != 'NONE' ]]; then
     chmod 400 "${MONGO_DATA_DIR}/replica.key"
     echo "[entrypoint.sh] chown replica.key"
     chown mongodb:mongodb "${MONGO_DATA_DIR}/replica.key"
-    MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --keyFile ${MONGO_DATA_DIR}/replica.key"
+    mongo_extra_args+=(--keyFile "${MONGO_DATA_DIR}/replica.key")
   fi
-  MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --auth"
+  mongo_extra_args+=(--auth)
 fi
 
 if [[ ${MONGO_LOG} != 'NONE' && ${MONGO_LOG} != '' ]]; then
    echo "[entrypoint.sh] set logpath"
    if [[ ${MONGO_LOG} == 'stdout' || ${MONGO_LOG} == 'STDOUT' ]]; then
      echo "[entrypoint.sh] set logpath to stdout"
-     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --logpath /proc/$$/fd/1"
+     mongo_extra_args+=(--logpath "/proc/$$/fd/1")
 
      chown --dereference mongodb "/proc/$$/fd/1" "/proc/$$/fd/2" || :
    else
      echo "[entrypoint.sh] set logpath to ${MONGO_LOG}"
-     MONGO_EXTRA_ARGS="${MONGO_EXTRA_ARGS} --logpath ${MONGO_LOG}"
+     mongo_extra_args+=(--logpath "${MONGO_LOG}")
    fi
    echo "[entrypoint.sh] Starting mongod..."
-   echo "[entrypoint.sh] Arguments on mongod startup $MONGO_EXTRA_ARGS"
-   # shellcheck disable=SC2086
-   mongod --port "${MONGO_PORT}" --dbpath "${MONGO_DATA_DIR}" ${MONGO_EXTRA_ARGS} --fork 2>&1
+   print_mongod_args
+   mongod --port "${MONGO_PORT}" --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" --fork 2>&1
    if [[ ${MONGO_LOG} != 'stdout' && ${MONGO_LOG} != 'STDOUT' ]]; then
      echo "[entrypoint.sh] Start following the mongodb log"
      tail -f "${MONGO_LOG}"
@@ -162,9 +173,8 @@ if [[ ${MONGO_LOG} != 'NONE' && ${MONGO_LOG} != '' ]]; then
    fi
 else
    echo "[entrypoint.sh] Starting mongod..."
-   echo "[entrypoint.sh] Arguments on mongod startup $MONGO_EXTRA_ARGS"
-   # shellcheck disable=SC2086
-   mongod --port "${MONGO_PORT}" --dbpath "${MONGO_DATA_DIR}" ${MONGO_EXTRA_ARGS} --syslog --fork 2>&1
+  print_mongod_args
+  mongod --port "${MONGO_PORT}" --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" --syslog --fork 2>&1
    PID=$(pgrep mongod)
    while ps -p "${PID}" &>/dev/null; do
       sleep 10
