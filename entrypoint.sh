@@ -139,17 +139,21 @@ if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]];
   echo "[entrypoint.sh] use ReplicaSet definition"
   mongo_extra_args+=(--replSet "${MONGO_REPLICA_SET_NAME}")
 
-  echo "[entrypoint.sh] Starting MongoDb for checking and initiate ReplicaSet"
-  mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" 2>&1
-
-  if mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "rs.status().ok" >/dev/null 2>&1; then
-    echo "[entrypoint.sh] ReplicaSet already initialized"
+  if ${MONGO_REPLICA_SKIP_INIT}; then
+    echo "[entrypoint.sh] Skip ReplicaSet initialization as requested"
   else
-    echo "[entrypoint.sh] initiate ReplicaSet"
-    mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "rs.initiate()"
+    echo "[entrypoint.sh] Starting MongoDb for checking and initiate ReplicaSet"
+    mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" 2>&1
+
+    if mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "rs.status().ok" >/dev/null 2>&1; then
+      echo "[entrypoint.sh] ReplicaSet already initialized"
+    else
+      echo "[entrypoint.sh] initiate ReplicaSet"
+      mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "rs.initiate()"
+    fi
+    echo "[entrypoint.sh] Stop mongodb for initiate ReplicaSet"
+    stop_mongod
   fi
-  echo "[entrypoint.sh] Stop mongodb for initiate ReplicaSet"
-  stop_mongod
 fi
 
 if [[ ${MONGO_ROOT_PWD} != 'NONE' ]]; then
