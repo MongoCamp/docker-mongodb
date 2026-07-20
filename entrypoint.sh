@@ -115,11 +115,15 @@ mongod --port "${MONGO_PORT}" --upgrade --dbpath "${MONGO_DATA_DIR}" "${mongo_ex
 echo "[entrypoint.sh] Starting MongoDb for upgrade Information"
 mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" 2>&1
 
-MONGODB_SHORT=$(cat mongoshort.txt)
-
-echo "[entrypoint.sh] Set Version to ${MONGODB_SHORT}"
-mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "db.adminCommand( { setFeatureCompatibilityVersion: '${MONGODB_SHORT}', confirm: true } );"
-mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
+if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
+  echo "[entrypoint.sh] Skip Feature Compatibility Version set as Replica Set is used."
+  echo "[entrypoint.sh] INFO: Please set FCV manually on the Primary node after all members are upgraded."
+else
+  MONGODB_SHORT=$(cat mongoshort.txt)
+  echo "[entrypoint.sh] Set Feature Compatibility Version to <${MONGODB_SHORT}>"
+  mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "db.adminCommand( { setFeatureCompatibilityVersion: '${MONGODB_SHORT}', confirm: true } );"
+  mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
+fi
 
 if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
   echo "[entrypoint.sh] Admin User to Database"
