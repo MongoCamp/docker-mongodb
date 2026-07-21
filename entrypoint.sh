@@ -33,7 +33,6 @@ setup_signals "$1" "handle_signal" SIGINT SIGTERM SIGHUP
 create_data_dir() {
   echo "[entrypoint.sh] Create Mongo Data Dir <${MONGO_DATA_DIR}>"
   mkdir -p "${MONGO_DATA_DIR}"
-  chmod -R 0755 "${MONGO_DATA_DIR}"
 }
 
 setup_mongosh_home() {
