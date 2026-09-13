@@ -47,11 +47,42 @@ setup_mongosh_home() {
   export XDG_CONFIG_HOME="${mongosh_runtime_home}/.config"
 }
 
+mongod_pid() {
+  # pgrep exits 1 when nothing matches, which would abort the whole script via
+  # `set -e` before the caller can react. Also never return more than one pid.
+  pgrep mongod 2>/dev/null | head -n 1 || true
+}
+
+wait_for_mongod_shutdown() {
+  local pid
+  local waited=0
+
+  # mongod --fork returns once the server accepts connections, but the forked
+  # process can need a moment before it shows up in the process table
+  pid=$(mongod_pid)
+  while [[ -z "${pid}" && ${waited} -lt 10 ]]; do
+    sleep 1
+    waited=$((waited + 1))
+    pid=$(mongod_pid)
+  done
+
+  if [[ -z "${pid}" ]]; then
+    echo "[entrypoint.sh] ERROR: mongod is not running after startup"
+    exit 1
+  fi
+
+  echo "[entrypoint.sh] MongoDb running with PID ${pid}"
+  while ps -p "${pid}" &>/dev/null; do
+    sleep 10
+  done
+  echo "[entrypoint.sh] mongod process ${pid} has exited"
+}
+
 stop_mongod() {
   local auth_args=()
 
   echo "[entrypoint.sh] Stop MongoDb"
-  PID=$(pgrep mongod)
+  PID=$(mongod_pid)
   if [ -z "$PID" ]; then
     echo "[entrypoint.sh] No mongod process found"
     return
@@ -193,17 +224,11 @@ if [[ ${MONGO_LOG} != 'NONE' && ${MONGO_LOG} != '' ]]; then
      echo "[entrypoint.sh] Start following the mongodb log"
      tail -f "${MONGO_LOG}"
    else
-     PID=$(pgrep mongod)
-     while ps -p "${PID}" &>/dev/null; do
-       sleep 10
-     done
+     wait_for_mongod_shutdown
    fi
 else
    echo "[entrypoint.sh] Starting mongod..."
   print_mongod_args
   mongod --port "${MONGO_PORT}" --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" --syslog --fork 2>&1
-   PID=$(pgrep mongod)
-   while ps -p "${PID}" &>/dev/null; do
-      sleep 10
-   done
+   wait_for_mongod_shutdown
 fi
