@@ -79,6 +79,7 @@ wait_for_mongod_shutdown() {
 }
 
 stop_mongod() {
+  local port="${1:-${MONGO_PORT}}"
   local auth_args=()
 
   echo "[entrypoint.sh] Stop MongoDb"
@@ -94,12 +95,12 @@ stop_mongod() {
 
   if grep -qa -- "--replSet" "/proc/$PID/cmdline"; then
     echo "[entrypoint.sh] Stop MongoDb with replSet"
-    mongosh --quiet --norc admin "${auth_args[@]}" --port "${MONGO_PORT}" --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' || true
+    mongosh --quiet --norc admin "${auth_args[@]}" --port "${port}" --eval 'db.adminCommand( { replSetStepDown: 120, secondaryCatchUpPeriodSecs: 0, force: true } );' || true
   else
     echo "[entrypoint.sh] Stop MongoDb"
   fi
-  
-  mongosh --quiet --norc admin "${auth_args[@]}" --port "${MONGO_PORT}" --eval 'db.shutdownServer();' || true
+
+  mongosh --quiet --norc admin "${auth_args[@]}" --port "${port}" --eval 'db.shutdownServer();' || true
   while ps -p "${PID}" &>/dev/null; do
       sleep 1
   done
@@ -108,6 +109,13 @@ stop_mongod() {
 
 create_data_dir
 setup_mongosh_home
+
+# mongod is restarted several times during bootstrap (upgrade check, FCV set,
+# replica set init) before the final long-running instance is started. All of
+# these bootstrap restarts run on a private port so that an external
+# readiness check against MONGO_PORT can never observe one of these
+# short-lived, about-to-be-stopped instances as if it were the final server.
+readonly MONGO_BOOTSTRAP_PORT=$((MONGO_PORT + 1))
 
 declare -a mongo_extra_args=()
 
@@ -140,10 +148,10 @@ if [[ ${MONGO_MAX_CONNECTIONS} != 'NONE' ]]; then
 fi
 
 echo "[entrypoint.sh] Upgrade MongoDb stored files if needed"
-mongod --port "${MONGO_PORT}" --upgrade --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}"
+mongod --port "${MONGO_BOOTSTRAP_PORT}" --upgrade --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}"
 
 echo "[entrypoint.sh] Starting MongoDb for upgrade Information"
-mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" 2>&1
+mongod --port "${MONGO_BOOTSTRAP_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" 2>&1
 
 if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
   echo "[entrypoint.sh] Skip Feature Compatibility Version set as Replica Set is used."
@@ -151,23 +159,23 @@ if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]];
 else
   MONGODB_SHORT=$(cat mongoshort.txt)
   echo "[entrypoint.sh] Set Feature Compatibility Version to <${MONGODB_SHORT}>"
-  mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "db.adminCommand( { setFeatureCompatibilityVersion: '${MONGODB_SHORT}', confirm: true } );"
-  mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
+  mongosh --quiet --norc admin --port "${MONGO_BOOTSTRAP_PORT}" --eval "db.adminCommand( { setFeatureCompatibilityVersion: '${MONGODB_SHORT}', confirm: true } );"
+  mongosh --quiet --norc admin --port "${MONGO_BOOTSTRAP_PORT}" --eval "db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } );"
 fi
 
 if [[ ${MONGO_ROOT_PWD} != 'NONE' && ${MONGO_ROOT_PWD} != '' ]]; then
   echo "[entrypoint.sh] Admin User to Database"
-  mongosh --quiet --norc admin --port "${MONGO_PORT}"  --eval "db.dropUser('${MONGO_ROOT_USERNAME}');" || true
-  mongosh --quiet --norc admin --port "${MONGO_PORT}"  --eval "db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
+  mongosh --quiet --norc admin --port "${MONGO_BOOTSTRAP_PORT}"  --eval "db.dropUser('${MONGO_ROOT_USERNAME}');" || true
+  mongosh --quiet --norc admin --port "${MONGO_BOOTSTRAP_PORT}"  --eval "db.createUser({'user': '${MONGO_ROOT_USERNAME}','pwd': '${MONGO_ROOT_PWD}','roles': [ 'root' ]});"
 fi
 
 if [[ ${MONGO_REPLICA_SET_NAME} == 'Standalone0' ]]; then
   echo "[entrypoint.sh] remove replicaSet definition for 'Standalone0' replicaSet"
-  mongosh --quiet --norc local --port "${MONGO_PORT}"  --eval "db.dropDatabase();"
+  mongosh --quiet --norc local --port "${MONGO_BOOTSTRAP_PORT}"  --eval "db.dropDatabase();"
 fi
 
 echo "[entrypoint.sh] Stop MongoDb for insert USER or Update Feature Version ..."
-stop_mongod
+stop_mongod "${MONGO_BOOTSTRAP_PORT}"
 
 if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]]; then
   echo "[entrypoint.sh] use ReplicaSet definition"
@@ -177,16 +185,16 @@ if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]];
     echo "[entrypoint.sh] Skip ReplicaSet initialization as requested"
   else
     echo "[entrypoint.sh] Starting MongoDb for checking and initiate ReplicaSet"
-    mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" 2>&1
+    mongod --port "${MONGO_BOOTSTRAP_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" 2>&1
 
-    if mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "rs.status().ok" >/dev/null 2>&1; then
+    if mongosh --quiet --norc admin --port "${MONGO_BOOTSTRAP_PORT}" --eval "rs.status().ok" >/dev/null 2>&1; then
       echo "[entrypoint.sh] ReplicaSet already initialized"
     else
       echo "[entrypoint.sh] initiate ReplicaSet"
-      mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "rs.initiate()"
+      mongosh --quiet --norc admin --port "${MONGO_BOOTSTRAP_PORT}" --eval "rs.initiate()"
     fi
     echo "[entrypoint.sh] Stop mongodb for initiate ReplicaSet"
-    stop_mongod
+    stop_mongod "${MONGO_BOOTSTRAP_PORT}"
   fi
 fi
 
