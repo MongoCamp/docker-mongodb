@@ -180,16 +180,19 @@ if [[ ${MONGO_REPLICA_SET_NAME} != 'NONE' && ${MONGO_REPLICA_SET_NAME} != '' ]];
     echo "[entrypoint.sh] Skip ReplicaSet initialization as requested"
   else
     echo "[entrypoint.sh] Starting MongoDb for checking and initiate ReplicaSet"
-    mongod --port "${MONGO_BOOTSTRAP_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" 2>&1
+    # rs.initiate() bakes this port into the persisted replica set config as
+    # this member's own address, so it has to run on the real MONGO_PORT -
+    # the final instance would otherwise not recognize itself as a member.
+    mongod --port "${MONGO_PORT}" --fork --syslog --dbpath "${MONGO_DATA_DIR}" "${mongo_extra_args[@]}" 2>&1
 
-    if mongosh --quiet --norc admin --port "${MONGO_BOOTSTRAP_PORT}" --eval "rs.status().ok" >/dev/null 2>&1; then
+    if mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "rs.status().ok" >/dev/null 2>&1; then
       echo "[entrypoint.sh] ReplicaSet already initialized"
     else
       echo "[entrypoint.sh] initiate ReplicaSet"
-      mongosh --quiet --norc admin --port "${MONGO_BOOTSTRAP_PORT}" --eval "rs.initiate()"
+      mongosh --quiet --norc admin --port "${MONGO_PORT}" --eval "rs.initiate()"
     fi
     echo "[entrypoint.sh] Stop mongodb for initiate ReplicaSet"
-    stop_mongod "${MONGO_BOOTSTRAP_PORT}"
+    stop_mongod "${MONGO_PORT}"
   fi
 fi
 
