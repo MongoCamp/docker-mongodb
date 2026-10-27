@@ -37,7 +37,7 @@ Automated builds of the image are available on
 [Dockerhub](https://hub.docker.com/r/mongocamp/mongodb/)
 
 ```bash
-docker pull mongocamp/mongodb:8.3.13
+docker pull mongocamp/mongodb:9.0.4
 ```
 
 Alternatively you can build the image yourself.
@@ -51,7 +51,7 @@ docker build . --tag 'mongocamp/mongodb:dev';
 Start MongoDB using:
 
 ```bash
-docker run --publish 27017:27017 mongocamp/mongodb:8.3.13
+docker run --publish 27017:27017 mongocamp/mongodb:9.0.4
 ```
 
 *Alternatively, you can use the sample [docker-compose.yml](docker-compose.yml) file to start the container using [Docker Compose](https://docs.docker.com/compose/)*
