@@ -1,4 +1,4 @@
-# mongocamp/mongodb:8.3.13
+# mongocamp/mongodb:9.0.4
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/mongocamp/mongodb) ![Docker Image Size with architecture (latest by date/latest semver)](https://img.shields.io/docker/image-size/mongocamp/mongodb?sort=semver) ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/mongocamp/mongodb?sort=semver)
 
